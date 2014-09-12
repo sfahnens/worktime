@@ -1,18 +1,31 @@
-package com.github.skyborla.worktime;
+package com.github.skyborla.worktime.model;
 
 import org.threeten.bp.LocalDate;
 import org.threeten.bp.LocalTime;
 
+import java.io.Serializable;
+
 /**
  * Created by Sebastian on 12.09.2014.
  */
-public class Record {
+public class Record implements Serializable {
+
+
 
     private Long id;
 
     private LocalDate date;
     private LocalTime startTime;
     private LocalTime endTime;
+
+    public Record() {
+    }
+
+    public Record(LocalDate date, LocalTime startTime, LocalTime endTime) {
+        this.date = date;
+        this.startTime = startTime;
+        this.endTime = endTime;
+    }
 
     public Long getId() {
         return id;

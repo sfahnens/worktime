@@ -1,4 +1,4 @@
-package com.github.skyborla.worktime;
+package com.github.skyborla.worktime.ui;
 
 import android.app.Activity;
 import android.app.Fragment;
@@ -9,6 +9,10 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
+
+import com.github.skyborla.worktime.R;
+import com.github.skyborla.worktime.model.Record;
+import com.github.skyborla.worktime.model.RecordDataSource;
 
 import java.sql.SQLException;
 import java.util.List;

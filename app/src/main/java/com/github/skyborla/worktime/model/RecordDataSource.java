@@ -1,4 +1,4 @@
-package com.github.skyborla.worktime;
+package com.github.skyborla.worktime.model;
 
 import android.content.ContentValues;
 import android.content.Context;

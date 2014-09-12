@@ -1,4 +1,4 @@
-package com.github.skyborla.worktime;
+package com.github.skyborla.worktime.model;
 
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;

@@ -13,6 +13,12 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.github.skyborla.worktime.model.RecordDataSource;
+import com.github.skyborla.worktime.ui.NavigationDrawerFragment;
+import com.github.skyborla.worktime.ui.NewRecordFragment;
+import com.github.skyborla.worktime.model.Record;
+import com.github.skyborla.worktime.ui.RecordsFragment;
+
 import org.threeten.bp.LocalDate;
 import org.threeten.bp.LocalTime;
 
@@ -24,7 +30,7 @@ import roboguice.activity.RoboFragmentActivity;
 public class Worktime extends RoboFragmentActivity
         implements NavigationDrawerFragment.NavigationDrawerCallbacks,
         RecordsFragment.OnFragmentInteractionListener,
-        NewRecordFragement.OnFragmentInteractionListener {
+        NewRecordFragment.NewFragmentInteractionListener {
 
     /**
      * Fragment managing the behaviors, interactions and presentation of the navigation drawer.
@@ -99,7 +105,7 @@ public class Worktime extends RoboFragmentActivity
 
     @Override
     public void onNewRecordButtonClicked() {
-        NewRecordFragement.newInstance(null, null).show(getSupportFragmentManager(), "newRecord");
+        NewRecordFragment.newInstance(null).show(getSupportFragmentManager(), "newRecord");
     }
 
     public void onSectionAttached(int number) {
@@ -152,6 +158,11 @@ public class Worktime extends RoboFragmentActivity
     @Override
     public void onFragmentInteraction(Uri uri) {
         System.out.println("iteraction -- " + uri.toString());
+    }
+
+    @Override
+    public void updatePendingRecord(Record record) {
+
     }
 
     @Override
