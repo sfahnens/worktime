@@ -79,13 +79,17 @@ public class RecordsFragment extends Fragment {
         }
         super.onResume();
     }
+//
+//    @Override
+//    public void onPause() {
+//        dataSource.close();
+//        super.onPause();
+//    }
 
-    @Override
-    public void onPause() {
-        dataSource.close();
-        super.onPause();
+
+    public String getMonth() {
+        return month;
     }
-
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,

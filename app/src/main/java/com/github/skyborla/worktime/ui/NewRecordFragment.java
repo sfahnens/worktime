@@ -117,7 +117,7 @@ public class NewRecordFragment extends DialogFragment {
         stateUpdated();
 
         return new AlertDialog.Builder(getActivity())
-                .setTitle(R.string.action_new_entry)
+                .setTitle(R.string.action_new_record)
                 .setView(view)
                 .setPositiveButton(R.string.dialog_new_finish, new DialogInterface.OnClickListener() {
                     @Override

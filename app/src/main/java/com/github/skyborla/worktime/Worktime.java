@@ -113,6 +113,12 @@ public class Worktime extends FragmentActivity implements NewRecordFragment.NewF
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
+
+        if (id == R.id.action_new_record) {
+            NewRecordFragment.newInstance().show(getSupportFragmentManager(), "newRecord");
+            return true;
+        }
+
         if (id == R.id.action_settings) {
             return true;
         }
@@ -133,6 +139,10 @@ public class Worktime extends FragmentActivity implements NewRecordFragment.NewF
 
         dataSource.persistRecord(record);
 
+        months = dataSource.getMonths();
+        mSectionsPagerAdapter.notifyDataSetChanged();
+
+        mViewPager.setCurrentItem(months.indexOf(RecordDataSource.DB_MONTH_DATE_FORMAT.format(date)));
     }
 
     /**
@@ -147,12 +157,24 @@ public class Worktime extends FragmentActivity implements NewRecordFragment.NewF
 
         @Override
         public Fragment getItem(int position) {
+            System.out.println("new " + position + " - " + months.get(position));
             return RecordsFragment.newInstance(months.get(position));
         }
 
         @Override
         public int getCount() {
             return months.size();
+        }
+
+        @Override
+        public long getItemId(int position) {
+            String month = months.get(position);
+            return Long.valueOf(month);
+        }
+
+        @Override
+        public int getItemPosition(Object object) {
+            return months.indexOf(((RecordsFragment) object).getMonth());
         }
 
         @Override

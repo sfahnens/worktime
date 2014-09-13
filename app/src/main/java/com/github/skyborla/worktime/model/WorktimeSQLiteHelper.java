@@ -32,7 +32,7 @@ public class WorktimeSQLiteHelper extends SQLiteOpenHelper {
     private static final String DROP = "drop table if exists " + TABLE_WORKTIME_RECORDS;
 
     public WorktimeSQLiteHelper(Context context) {
-        super(context, DATABASE_NAME, null, 2);
+        super(context, DATABASE_NAME, null, 3);
     }
 
     @Override

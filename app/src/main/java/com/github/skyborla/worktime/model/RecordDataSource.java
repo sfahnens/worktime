@@ -22,7 +22,7 @@ public class RecordDataSource {
     private SQLiteDatabase database;
     private WorktimeSQLiteHelper dbHelper;
 
-    private DateTimeFormatter monthDateFormat = DateTimeFormatter.ofPattern("YYYY.MM");
+    public static final DateTimeFormatter DB_MONTH_DATE_FORMAT = DateTimeFormatter.ofPattern("YYYYMM");
 
     public RecordDataSource(Context context) {
         dbHelper = new WorktimeSQLiteHelper(context);
@@ -42,7 +42,7 @@ public class RecordDataSource {
 
         if (record.getDate() != null) {
             values.put(WorktimeSQLiteHelper.COL_DATE, record.getDate().toString());
-            values.put(WorktimeSQLiteHelper.COL_MONTH, monthDateFormat.format(record.getDate()));
+            values.put(WorktimeSQLiteHelper.COL_MONTH, DB_MONTH_DATE_FORMAT.format(record.getDate()));
         }
 
         if (record.getStartTime() != null) {
