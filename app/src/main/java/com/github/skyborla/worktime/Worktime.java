@@ -81,8 +81,12 @@ public class Worktime extends FragmentActivity implements NewRecordFragment.NewF
         mViewPager = (ViewPager) findViewById(R.id.pager);
         mViewPager.setAdapter(mSectionsPagerAdapter);
 
-
-        System.out.println("PAGER : " + R.id.pager);
+        String now = RecordDataSource.DB_MONTH_DATE_FORMAT.format(LocalDate.now());
+        if (months.contains(now)) {
+            mViewPager.setCurrentItem(months.indexOf(now));
+        } else if (months.size() > 0) {
+            mViewPager.setCurrentItem(months.size() - 1);
+        }
 
     }
 
