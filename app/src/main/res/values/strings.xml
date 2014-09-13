@@ -12,5 +12,7 @@
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="dialog_new_finish">Speichern</string>
     <string name="dialog_new_abort">Abbrechen</string>
+    <string name="title_activity_worktime">Worktime</string>
+    <string name="hello_world">Hello world!</string>
 
 </resources>

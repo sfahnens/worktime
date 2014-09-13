@@ -3,6 +3,7 @@ package com.github.skyborla.worktime.ui;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
+import android.support.v4.app.DialogFragment;
 import android.app.Fragment;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -16,16 +17,13 @@ import android.widget.EditText;
 import com.doomonafireball.betterpickers.calendardatepicker.CalendarDatePickerDialog;
 import com.doomonafireball.betterpickers.radialtimepicker.RadialPickerLayout;
 import com.doomonafireball.betterpickers.radialtimepicker.RadialTimePickerDialog;
+import com.github.skyborla.worktime.DateUtil;
 import com.github.skyborla.worktime.R;
 import com.github.skyborla.worktime.Worktime;
 
 import org.threeten.bp.LocalDate;
 import org.threeten.bp.LocalTime;
-import org.threeten.bp.format.DateTimeFormatter;
 import org.threeten.bp.format.DateTimeParseException;
-
-import roboguice.fragment.RoboDialogFragment;
-
 
 /**
  * A simple {@link Fragment} subclass.
@@ -35,7 +33,7 @@ import roboguice.fragment.RoboDialogFragment;
  * Use the {@link NewRecordFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class NewRecordFragment extends RoboDialogFragment {
+public class NewRecordFragment extends DialogFragment {
 
     private static final String ARG_DATE = "date";
     private static final String ARG_START_TIME = "startTime";
@@ -46,9 +44,6 @@ public class NewRecordFragment extends RoboDialogFragment {
     private LocalDate date;
     private LocalTime startTime;
     private LocalTime endTime;
-
-    private DateTimeFormatter dateFormat = DateTimeFormatter.ofPattern("dd. MM. YYYY");
-    private DateTimeFormatter timeFormat = DateTimeFormatter.ofPattern("HH:mm");
 
     private EditText datePreview;
     private EditText startTimePreview;
@@ -280,21 +275,21 @@ public class NewRecordFragment extends RoboDialogFragment {
             datePreview.setText("--. --. ----");
         } else {
             editor.putString(Worktime.PENDING_DATE, date.toString());
-            datePreview.setText(date.format(dateFormat));
+            datePreview.setText(date.format(DateUtil.DATE_FORMAT));
         }
 
         if (startTime == null) {
             startTimePreview.setText("--:--");
         } else {
             editor.putString(Worktime.PENDING_START_TIME, startTime.toString());
-            startTimePreview.setText(startTime.format(timeFormat));
+            startTimePreview.setText(startTime.format(DateUtil.TIME_FORMAT));
         }
 
         if (endTime == null) {
             endTimePreview.setText("--:--");
         } else {
             editor.putString(Worktime.PENDING_END_TIME, endTime.toString());
-            endTimePreview.setText(endTime.format(timeFormat));
+            endTimePreview.setText(endTime.format(DateUtil.TIME_FORMAT));
         }
 
         editor.commit();

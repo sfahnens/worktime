@@ -7,6 +7,8 @@ import android.database.sqlite.SQLiteDatabase;
 
 import org.threeten.bp.LocalDate;
 import org.threeten.bp.LocalTime;
+import org.threeten.bp.format.DateTimeFormatter;
+import org.threeten.bp.temporal.ChronoUnit;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -19,6 +21,8 @@ public class RecordDataSource {
 
     private SQLiteDatabase database;
     private WorktimeSQLiteHelper dbHelper;
+
+    private DateTimeFormatter monthDateFormat = DateTimeFormatter.ofPattern("YYYY.MM");
 
     public RecordDataSource(Context context) {
         dbHelper = new WorktimeSQLiteHelper(context);
@@ -38,20 +42,23 @@ public class RecordDataSource {
 
         if (record.getDate() != null) {
             values.put(WorktimeSQLiteHelper.COL_DATE, record.getDate().toString());
+            values.put(WorktimeSQLiteHelper.COL_MONTH, monthDateFormat.format(record.getDate()));
         }
 
         if (record.getStartTime() != null) {
-            values.put(WorktimeSQLiteHelper.COL_START_TIME, record.getStartTime().toString());
+            values.put(WorktimeSQLiteHelper.COL_START_TIME,
+                    record.getStartTime().truncatedTo(ChronoUnit.MINUTES).toString());
         }
 
         if (record.getEndTime() != null) {
-            values.put(WorktimeSQLiteHelper.COL_END_TIME, record.getEndTime().toString());
+            values.put(WorktimeSQLiteHelper.COL_END_TIME,
+                    record.getEndTime().truncatedTo(ChronoUnit.MINUTES).toString());
         }
 
         long id = database.insert(WorktimeSQLiteHelper.TABLE_WORKTIME_RECORDS, null, values);
 
         Cursor cursor = database.query(WorktimeSQLiteHelper.TABLE_WORKTIME_RECORDS,
-                WorktimeSQLiteHelper.COLUMNS,
+                WorktimeSQLiteHelper.RECORD_COLUMNS,
                 WorktimeSQLiteHelper.COL_ID + " = " + id,
                 null, null, null, null);
 
@@ -66,7 +73,7 @@ public class RecordDataSource {
         List<Record> records = new ArrayList<Record>();
 
         Cursor cursor = database.query(WorktimeSQLiteHelper.TABLE_WORKTIME_RECORDS,
-                WorktimeSQLiteHelper.COLUMNS,
+                WorktimeSQLiteHelper.RECORD_COLUMNS,
                 null, null, null, null, null);
 
         cursor.moveToFirst();
@@ -79,6 +86,40 @@ public class RecordDataSource {
         return records;
     }
 
+
+    public List<String> getMonths() {
+
+        List<String> months = new ArrayList<String>();
+        Cursor cursor = database.query(WorktimeSQLiteHelper.TABLE_WORKTIME_RECORDS,
+                new String[]{WorktimeSQLiteHelper.COL_MONTH},
+                null, null, WorktimeSQLiteHelper.COL_MONTH, null, null);
+
+        cursor.moveToFirst();
+        while (!cursor.isAfterLast()) {
+            months.add(cursor.getString(0));
+            cursor.moveToNext();
+        }
+
+        cursor.close();
+        return months;
+    }
+
+    public List<Record> getRecords(String month) {
+        List<Record> records = new ArrayList<Record>();
+
+        Cursor cursor = database.query(WorktimeSQLiteHelper.TABLE_WORKTIME_RECORDS,
+                WorktimeSQLiteHelper.RECORD_COLUMNS,
+                WorktimeSQLiteHelper.COL_MONTH + " = " + month, null, null, null, null);
+
+        cursor.moveToFirst();
+        while (!cursor.isAfterLast()) {
+            records.add(cursorToRecord(cursor));
+            cursor.moveToNext();
+        }
+
+        cursor.close();
+        return records;
+    }
 
     private Record cursorToRecord(Cursor cursor) {
 
