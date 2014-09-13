@@ -4,7 +4,9 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.Fragment;
+import android.content.Context;
 import android.content.DialogInterface;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -15,11 +17,12 @@ import com.doomonafireball.betterpickers.calendardatepicker.CalendarDatePickerDi
 import com.doomonafireball.betterpickers.radialtimepicker.RadialPickerLayout;
 import com.doomonafireball.betterpickers.radialtimepicker.RadialTimePickerDialog;
 import com.github.skyborla.worktime.R;
-import com.github.skyborla.worktime.model.Record;
+import com.github.skyborla.worktime.Worktime;
 
 import org.threeten.bp.LocalDate;
 import org.threeten.bp.LocalTime;
 import org.threeten.bp.format.DateTimeFormatter;
+import org.threeten.bp.format.DateTimeParseException;
 
 import roboguice.fragment.RoboDialogFragment;
 
@@ -34,14 +37,15 @@ import roboguice.fragment.RoboDialogFragment;
  */
 public class NewRecordFragment extends RoboDialogFragment {
 
-    private static final String ARG_PARAM1 = "pendingRecord";
-    private Record pendingRecord;
+    private static final String ARG_DATE = "date";
+    private static final String ARG_START_TIME = "startTime";
+    private static final String ARG_END_TIME = "EndTime";
 
     private NewFragmentInteractionListener mListener;
 
-    private LocalDate date = LocalDate.now();
-    private LocalTime startTime = LocalTime.now();
-    private LocalTime endTime = null;
+    private LocalDate date;
+    private LocalTime startTime;
+    private LocalTime endTime;
 
     private DateTimeFormatter dateFormat = DateTimeFormatter.ofPattern("dd. MM. YYYY");
     private DateTimeFormatter timeFormat = DateTimeFormatter.ofPattern("HH:mm");
@@ -50,17 +54,16 @@ public class NewRecordFragment extends RoboDialogFragment {
     private EditText startTimePreview;
     private EditText endTimePreview;
 
-    /**
-     * Use this factory method to create a new instance of
-     * this fragment using the provided parameters.
-     *
-     * @param pendingRecord Parameter 1.
-     * @return A new instance of fragment NewRecordFragement.
-     */
-    public static NewRecordFragment newInstance(String pendingRecord) {
+    public static NewRecordFragment newInstance() {
+        return new NewRecordFragment();
+    }
+
+    public static NewRecordFragment newInstance(String date, String startTime, String endTime) {
         NewRecordFragment fragment = new NewRecordFragment();
         Bundle args = new Bundle();
-        args.putSerializable(ARG_PARAM1, pendingRecord);
+        args.putString(ARG_DATE, date);
+        args.putString(ARG_START_TIME, startTime);
+        args.putString(ARG_END_TIME, endTime);
         fragment.setArguments(args);
         return fragment;
     }
@@ -73,9 +76,22 @@ public class NewRecordFragment extends RoboDialogFragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
-            pendingRecord = (Record) getArguments().getSerializable(ARG_PARAM1);
+            try {
+                date = LocalDate.parse(getArguments().getString(ARG_DATE));
+            } catch (DateTimeParseException e) {
+            }
+            try {
+                startTime = LocalTime.parse(getArguments().getString(ARG_START_TIME));
+            } catch (DateTimeParseException e) {
+            }
+            try {
+                endTime = LocalTime.parse(getArguments().getString(ARG_END_TIME));
+            } catch (DateTimeParseException e) {
+            }
+
         } else {
-            pendingRecord = new Record(date, startTime, endTime);
+            date = LocalDate.now();
+            startTime = LocalTime.now();
         }
     }
 
@@ -103,6 +119,7 @@ public class NewRecordFragment extends RoboDialogFragment {
         View view = inflater.inflate(R.layout.fragment_record_form, null);
 
         setupForm(view);
+        stateUpdated();
 
         return new AlertDialog.Builder(getActivity())
                 .setTitle(R.string.action_new_entry)
@@ -110,7 +127,7 @@ public class NewRecordFragment extends RoboDialogFragment {
                 .setPositiveButton(R.string.dialog_new_finish, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        mListener.createNewRecord();
+                        mListener.createNewRecord(date, startTime, endTime);
                         System.out.println("OK");
                     }
                 }).create();
@@ -138,7 +155,7 @@ public class NewRecordFragment extends RoboDialogFragment {
                                     @Override
                                     public void onDateSet(CalendarDatePickerDialog calendarDatePickerDialog, int year, int month, int day) {
                                         date = LocalDate.of(year, month, day);
-                                        updatePreview();
+                                        stateUpdated();
                                     }
                                 },
                                 date.getYear(),
@@ -152,7 +169,7 @@ public class NewRecordFragment extends RoboDialogFragment {
             @Override
             public void onClick(View v) {
                 date = LocalDate.now();
-                updatePreview();
+                stateUpdated();
             }
 
 
@@ -173,7 +190,7 @@ public class NewRecordFragment extends RoboDialogFragment {
                                          @Override
                                          public void onTimeSet(RadialPickerLayout radialPickerLayout, int hour, int minute) {
                                              startTime = LocalTime.of(hour, minute);
-                                             updatePreview();
+                                             stateUpdated();
                                          }
                                      },
                                 startTime.getHour(),
@@ -187,7 +204,7 @@ public class NewRecordFragment extends RoboDialogFragment {
             @Override
             public void onClick(View v) {
                 startTime = LocalTime.now();
-                updatePreview();
+                stateUpdated();
             }
         });
     }
@@ -206,7 +223,7 @@ public class NewRecordFragment extends RoboDialogFragment {
                                          @Override
                                          public void onTimeSet(RadialPickerLayout radialPickerLayout, int hour, int minute) {
                                              endTime = LocalTime.of(hour, minute);
-                                             updatePreview();
+                                             stateUpdated();
                                          }
                                      },
                                 endTime.getHour(),
@@ -220,37 +237,41 @@ public class NewRecordFragment extends RoboDialogFragment {
             @Override
             public void onClick(View v) {
                 endTime = LocalTime.now();
-                updatePreview();
+                stateUpdated();
             }
         });
     }
 
     public interface NewFragmentInteractionListener {
-
-        public void updatePendingRecord(Record record);
-
-        public void createNewRecord();
+        void createNewRecord(LocalDate date, LocalTime startTime, LocalTime endTime);
 
     }
 
-    private void updatePreview() {
+    private void stateUpdated() {
+        SharedPreferences.Editor editor = getActivity().getPreferences(Context.MODE_PRIVATE).edit();
+        editor.putBoolean(Worktime.PENDING_REPORT, true);
+
         if (date == null) {
             datePreview.setText("--. --. ----");
         } else {
+            editor.putString(Worktime.PENDING_DATE, date.toString());
             datePreview.setText(date.format(dateFormat));
         }
 
         if (startTime == null) {
             startTimePreview.setText("--:--");
         } else {
+            editor.putString(Worktime.PENDING_START_TIME, startTime.toString());
             startTimePreview.setText(startTime.format(timeFormat));
         }
 
         if (endTime == null) {
             endTimePreview.setText("--:--");
         } else {
+            editor.putString(Worktime.PENDING_END_TIME, endTime.toString());
             endTimePreview.setText(endTime.format(timeFormat));
         }
-    }
 
+        editor.commit();
+    }
 }

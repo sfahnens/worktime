@@ -2,6 +2,8 @@ package com.github.skyborla.worktime;
 
 import android.app.ActionBar;
 import android.app.Activity;
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -13,10 +15,10 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.github.skyborla.worktime.model.Record;
 import com.github.skyborla.worktime.model.RecordDataSource;
 import com.github.skyborla.worktime.ui.NavigationDrawerFragment;
 import com.github.skyborla.worktime.ui.NewRecordFragment;
-import com.github.skyborla.worktime.model.Record;
 import com.github.skyborla.worktime.ui.RecordsFragment;
 
 import org.threeten.bp.LocalDate;
@@ -32,6 +34,10 @@ public class Worktime extends RoboFragmentActivity
         RecordsFragment.OnFragmentInteractionListener,
         NewRecordFragment.NewFragmentInteractionListener {
 
+    public static final String PENDING_REPORT = "PENDING_RECORD";
+    public static final String PENDING_DATE = "PENDING_DATE";
+    public static final String PENDING_START_TIME = "PENDING_START_TIME";
+    public static final String PENDING_END_TIME = "PENDING_END_TIME";
     /**
      * Fragment managing the behaviors, interactions and presentation of the navigation drawer.
      */
@@ -43,6 +49,8 @@ public class Worktime extends RoboFragmentActivity
     private CharSequence mTitle;
 
     private RecordDataSource dataSource;
+
+    private Record pendingRecord = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -63,6 +71,15 @@ public class Worktime extends RoboFragmentActivity
             dataSource.open();
         } catch (SQLException e) {
             e.printStackTrace();
+        }
+
+        SharedPreferences pref = getPreferences(Context.MODE_PRIVATE);
+
+        if (pref.getBoolean(PENDING_REPORT, false)) {
+            NewRecordFragment.newInstance(
+                    pref.getString(PENDING_DATE, ""),
+                    pref.getString(PENDING_START_TIME, ""),
+                    pref.getString(PENDING_END_TIME, "")).show(getSupportFragmentManager(), "newRecord");
         }
     }
 
@@ -105,7 +122,7 @@ public class Worktime extends RoboFragmentActivity
 
     @Override
     public void onNewRecordButtonClicked() {
-        NewRecordFragment.newInstance(null).show(getSupportFragmentManager(), "newRecord");
+        NewRecordFragment.newInstance().show(getSupportFragmentManager(), "newRecord");
     }
 
     public void onSectionAttached(int number) {
@@ -161,17 +178,23 @@ public class Worktime extends RoboFragmentActivity
     }
 
     @Override
-    public void updatePendingRecord(Record record) {
-
+    protected void onSaveInstanceState(Bundle outState) {
+        System.out.println("save!");
+        super.onSaveInstanceState(outState);
+        outState.putSerializable(Record.class.getCanonicalName(), pendingRecord);
     }
 
     @Override
-    public void createNewRecord() {
+    public void createNewRecord(LocalDate date, LocalTime startTime, LocalTime endTime) {
+
+        SharedPreferences.Editor editor = getPreferences(Context.MODE_PRIVATE).edit();
+        editor.putBoolean(PENDING_REPORT, false);
+
 
         Record record = new Record();
-        record.setDate(LocalDate.now());
-        record.setStartTime(LocalTime.now().minusHours(1));
-        record.setEndTime(LocalTime.now());
+        record.setDate(date);
+        record.setStartTime(startTime);
+        record.setEndTime(endTime);
 
         dataSource.persistRecord(record);
 
