@@ -34,7 +34,7 @@ public class Worktime extends RoboFragmentActivity
         RecordsFragment.OnFragmentInteractionListener,
         NewRecordFragment.NewFragmentInteractionListener {
 
-    public static final String PENDING_REPORT = "PENDING_RECORD";
+    public static final String PENDING_RECORD = "PENDING_RECORD";
     public static final String PENDING_DATE = "PENDING_DATE";
     public static final String PENDING_START_TIME = "PENDING_START_TIME";
     public static final String PENDING_END_TIME = "PENDING_END_TIME";
@@ -75,7 +75,7 @@ public class Worktime extends RoboFragmentActivity
 
         SharedPreferences pref = getPreferences(Context.MODE_PRIVATE);
 
-        if (pref.getBoolean(PENDING_REPORT, false)) {
+        if (pref.getBoolean(PENDING_RECORD, false)) {
             NewRecordFragment.newInstance(
                     pref.getString(PENDING_DATE, ""),
                     pref.getString(PENDING_START_TIME, ""),
@@ -188,8 +188,8 @@ public class Worktime extends RoboFragmentActivity
     public void createNewRecord(LocalDate date, LocalTime startTime, LocalTime endTime) {
 
         SharedPreferences.Editor editor = getPreferences(Context.MODE_PRIVATE).edit();
-        editor.putBoolean(PENDING_REPORT, false);
-
+        editor.putBoolean(PENDING_RECORD, false);
+        editor.commit();
 
         Record record = new Record();
         record.setDate(date);

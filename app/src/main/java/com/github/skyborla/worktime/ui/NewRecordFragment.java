@@ -130,6 +130,22 @@ public class NewRecordFragment extends RoboDialogFragment {
                         mListener.createNewRecord(date, startTime, endTime);
                         System.out.println("OK");
                     }
+                })
+                .setNegativeButton(R.string.dialog_new_abort, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        SharedPreferences.Editor editor = getActivity().getPreferences(Context.MODE_PRIVATE).edit();
+                        editor.putBoolean(Worktime.PENDING_RECORD, false);
+                        editor.commit();
+                    }
+                })
+                .setOnDismissListener(new DialogInterface.OnDismissListener() {
+                    @Override
+                    public void onDismiss(DialogInterface dialog) {
+                        SharedPreferences.Editor editor = getActivity().getPreferences(Context.MODE_PRIVATE).edit();
+                        editor.putBoolean(Worktime.PENDING_RECORD, false);
+                        editor.commit();
+                    }
                 }).create();
     }
 
@@ -144,23 +160,7 @@ public class NewRecordFragment extends RoboDialogFragment {
         datePreview.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (date == null) {
-                    date = LocalDate.now();
-                }
-
-                CalendarDatePickerDialog
-                        .newInstance(
-                                new CalendarDatePickerDialog
-                                        .OnDateSetListener() {
-                                    @Override
-                                    public void onDateSet(CalendarDatePickerDialog calendarDatePickerDialog, int year, int month, int day) {
-                                        date = LocalDate.of(year, month, day);
-                                        stateUpdated();
-                                    }
-                                },
-                                date.getYear(),
-                                date.getMonthValue(),
-                                date.getDayOfMonth()).show(getFragmentManager(), "calendardatepicker");
+                pickDate();
             }
         });
 
@@ -171,9 +171,27 @@ public class NewRecordFragment extends RoboDialogFragment {
                 date = LocalDate.now();
                 stateUpdated();
             }
-
-
         });
+    }
+
+    private void pickDate() {
+        if (date == null) {
+            date = LocalDate.now();
+        }
+
+        CalendarDatePickerDialog
+                .newInstance(
+                        new CalendarDatePickerDialog
+                                .OnDateSetListener() {
+                            @Override
+                            public void onDateSet(CalendarDatePickerDialog calendarDatePickerDialog, int year, int month, int day) {
+                                date = LocalDate.of(year, month, day);
+                                stateUpdated();
+                            }
+                        },
+                        date.getYear(),
+                        date.getMonthValue(),
+                        date.getDayOfMonth()).show(getFragmentManager(), "calendardatepicker");
     }
 
     private void setupStartTimeForm(View view) {
@@ -181,21 +199,7 @@ public class NewRecordFragment extends RoboDialogFragment {
         startTimePreview.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (startTime == null) {
-                    startTime = LocalTime.now();
-                }
-
-                RadialTimePickerDialog
-                        .newInstance(new RadialTimePickerDialog.OnTimeSetListener() {
-                                         @Override
-                                         public void onTimeSet(RadialPickerLayout radialPickerLayout, int hour, int minute) {
-                                             startTime = LocalTime.of(hour, minute);
-                                             stateUpdated();
-                                         }
-                                     },
-                                startTime.getHour(),
-                                startTime.getMinute(),
-                                true).show(getFragmentManager(), "startTimePicker");
+                pickStartTime();
             }
         });
 
@@ -209,26 +213,30 @@ public class NewRecordFragment extends RoboDialogFragment {
         });
     }
 
+    private void pickStartTime() {
+        if (startTime == null) {
+            startTime = LocalTime.now();
+        }
+
+        RadialTimePickerDialog
+                .newInstance(new RadialTimePickerDialog.OnTimeSetListener() {
+                                 @Override
+                                 public void onTimeSet(RadialPickerLayout radialPickerLayout, int hour, int minute) {
+                                     startTime = LocalTime.of(hour, minute);
+                                     stateUpdated();
+                                 }
+                             },
+                        startTime.getHour(),
+                        startTime.getMinute(),
+                        true).show(getFragmentManager(), "startTimePicker");
+    }
+
     private void setupEndTimeForm(View view) {
         endTimePreview = (EditText) view.findViewById(R.id.form_end_time_preview);
         endTimePreview.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (endTime == null) {
-                    endTime = LocalTime.now();
-                }
-
-                RadialTimePickerDialog
-                        .newInstance(new RadialTimePickerDialog.OnTimeSetListener() {
-                                         @Override
-                                         public void onTimeSet(RadialPickerLayout radialPickerLayout, int hour, int minute) {
-                                             endTime = LocalTime.of(hour, minute);
-                                             stateUpdated();
-                                         }
-                                     },
-                                endTime.getHour(),
-                                endTime.getMinute(),
-                                true).show(getFragmentManager(), "startTimePicker");
+                pickEndTime();
             }
         });
 
@@ -242,14 +250,31 @@ public class NewRecordFragment extends RoboDialogFragment {
         });
     }
 
+    private void pickEndTime() {
+        if (endTime == null) {
+            endTime = LocalTime.now();
+        }
+
+        RadialTimePickerDialog
+                .newInstance(new RadialTimePickerDialog.OnTimeSetListener() {
+                                 @Override
+                                 public void onTimeSet(RadialPickerLayout radialPickerLayout, int hour, int minute) {
+                                     endTime = LocalTime.of(hour, minute);
+                                     stateUpdated();
+                                 }
+                             },
+                        endTime.getHour(),
+                        endTime.getMinute(),
+                        true).show(getFragmentManager(), "startTimePicker");
+    }
+
     public interface NewFragmentInteractionListener {
         void createNewRecord(LocalDate date, LocalTime startTime, LocalTime endTime);
-
     }
 
     private void stateUpdated() {
         SharedPreferences.Editor editor = getActivity().getPreferences(Context.MODE_PRIVATE).edit();
-        editor.putBoolean(Worktime.PENDING_REPORT, true);
+        editor.putBoolean(Worktime.PENDING_RECORD, true);
 
         if (date == null) {
             datePreview.setText("--. --. ----");

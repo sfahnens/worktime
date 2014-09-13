@@ -27,12 +27,11 @@
             android:layout_height="wrap_content"
             android:id="@+id/form_date_preview"
             android:textSize="24dp"
-            android:layout_alignParentEnd="true"
-            android:layout_alignParentStart="true"
             android:singleLine="true"
-            android:text="12. 08. 2014"
             android:enabled="true"
             android:editable="false"
+            android:focusable="false"
+            android:focusableInTouchMode="false"
             android:layout_weight="1" />
 
         <Button
@@ -43,7 +42,7 @@
             android:layout_below="@+id/form_date_preview"
             android:layout_alignParentStart="true"
             android:width="100dp"
-            style="?android:attr/borderlessButtonStyle"/>
+            style="?android:attr/borderlessButtonStyle" />
 
     </LinearLayout>
 
@@ -66,12 +65,11 @@
             android:layout_height="wrap_content"
             android:id="@+id/form_start_time_preview"
             android:textSize="24dp"
-            android:layout_alignParentEnd="true"
-            android:layout_alignParentStart="true"
-            android:text="15:24"
             android:enabled="true"
             android:layout_weight="1"
-            android:editable="false" />
+            android:editable="false"
+            android:focusable="false"
+            android:focusableInTouchMode="false" />
 
         <Button
             android:layout_width="wrap_content"
@@ -81,7 +79,7 @@
             android:layout_below="@+id/form_date_preview"
             android:layout_alignParentStart="true"
             android:width="100dp"
-            style="?android:attr/borderlessButtonStyle"/>
+            style="?android:attr/borderlessButtonStyle" />
 
     </LinearLayout>
 
@@ -105,11 +103,10 @@
             android:layout_height="wrap_content"
             android:id="@+id/form_end_time_preview"
             android:textSize="24dp"
-            android:layout_alignParentEnd="true"
-            android:layout_alignParentStart="true"
             android:singleLine="true"
-            android:text="--:--"
             android:enabled="true"
+            android:focusable="false"
+            android:focusableInTouchMode="false"
             android:layout_weight="1"
             android:editable="false" />
 
@@ -121,7 +118,7 @@
             android:layout_below="@+id/form_date_preview"
             android:layout_alignParentStart="true"
             android:width="100dp"
-            style="?android:attr/borderlessButtonStyle"/>
+            style="?android:attr/borderlessButtonStyle" />
 
     </LinearLayout>
 
