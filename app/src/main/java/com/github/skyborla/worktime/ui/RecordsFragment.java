@@ -61,6 +61,10 @@ public class RecordsFragment extends Fragment {
             month = getArguments().getString(ARG_MONTH);
         }
 
+        System.out.println("TAG: " + getTag());
+        System.out.println("ID: " + getId());
+
+
         dataSource = new RecordDataSource(getActivity());
 
         try {
@@ -130,7 +134,7 @@ public class RecordsFragment extends Fragment {
 
     public void onRecordsUpdated() {
         adapter.clear();
-        adapter.addAll(dataSource.getAllRecords());
+        adapter.addAll(dataSource.getRecords(month));
         adapter.notifyDataSetChanged();
 
         System.out.println("list updated");

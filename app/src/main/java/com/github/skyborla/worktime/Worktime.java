@@ -82,6 +82,8 @@ public class Worktime extends FragmentActivity implements NewRecordFragment.NewF
         mViewPager.setAdapter(mSectionsPagerAdapter);
 
 
+        System.out.println("PAGER : " + R.id.pager);
+
     }
 
     @Override
@@ -142,7 +144,16 @@ public class Worktime extends FragmentActivity implements NewRecordFragment.NewF
         months = dataSource.getMonths();
         mSectionsPagerAdapter.notifyDataSetChanged();
 
-        mViewPager.setCurrentItem(months.indexOf(RecordDataSource.DB_MONTH_DATE_FORMAT.format(date)));
+        String dbFormatted = RecordDataSource.DB_MONTH_DATE_FORMAT.format(date);
+
+        mViewPager.setCurrentItem(months.indexOf(dbFormatted));
+
+        String tag = "android:switcher:" + R.id.pager + ":" + dbFormatted;
+        RecordsFragment fragment = (RecordsFragment) getFragmentManager().findFragmentByTag(tag);
+
+        if(fragment != null) {
+            fragment.onRecordsUpdated();
+        }
     }
 
     /**
