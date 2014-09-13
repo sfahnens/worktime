@@ -3,16 +3,17 @@ package com.github.skyborla.worktime.ui;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
-import android.support.v4.app.DialogFragment;
 import android.app.Fragment;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.support.v4.app.DialogFragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.Toast;
 
 import com.doomonafireball.betterpickers.calendardatepicker.CalendarDatePickerDialog;
 import com.doomonafireball.betterpickers.radialtimepicker.RadialPickerLayout;
@@ -48,6 +49,8 @@ public class NewRecordFragment extends DialogFragment {
     private EditText datePreview;
     private EditText startTimePreview;
     private EditText endTimePreview;
+    private View view;
+    private AlertDialog dialog;
 
     public static NewRecordFragment newInstance() {
         return new NewRecordFragment();
@@ -111,21 +114,15 @@ public class NewRecordFragment extends DialogFragment {
     public Dialog onCreateDialog(Bundle savedInstanceState) {
 
         LayoutInflater inflater = getActivity().getLayoutInflater();
-        View view = inflater.inflate(R.layout.fragment_record_form, null);
+        view = inflater.inflate(R.layout.fragment_record_form, null);
 
         setupForm(view);
         stateUpdated();
 
-        return new AlertDialog.Builder(getActivity())
+        dialog = new AlertDialog.Builder(getActivity())
                 .setTitle(R.string.action_new_record)
                 .setView(view)
-                .setPositiveButton(R.string.dialog_new_finish, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        mListener.createNewRecord(date, startTime, endTime);
-                        System.out.println("OK");
-                    }
-                })
+                .setPositiveButton(R.string.dialog_new_finish, null)
                 .setNegativeButton(R.string.dialog_new_abort, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
@@ -134,14 +131,43 @@ public class NewRecordFragment extends DialogFragment {
                         editor.commit();
                     }
                 })
-                .setOnDismissListener(new DialogInterface.OnDismissListener() {
-                    @Override
-                    public void onDismiss(DialogInterface dialog) {
-                        SharedPreferences.Editor editor = getActivity().getPreferences(Context.MODE_PRIVATE).edit();
-                        editor.putBoolean(Worktime.PENDING_RECORD, false);
-                        editor.commit();
-                    }
-                }).create();
+                .setCancelable(false)
+                .create();
+
+        dialog.setOnShowListener(new DialogInterface.OnShowListener() {
+            @Override
+            public void onShow(DialogInterface dialog) {
+                ((AlertDialog) dialog)
+                        .getButton(AlertDialog.BUTTON_POSITIVE)
+                        .setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View view) {
+                                validateAndCreate();
+                            }
+                        });
+            }
+        });
+
+
+        return dialog;
+    }
+
+    private void validateAndCreate() {
+
+        if (date == null || startTime == null || endTime == null) {
+            Toast.makeText(getActivity(), R.string.record_missing_fields_message, Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        if(endTime.isBefore(startTime)) {
+            Toast.makeText(getActivity(), R.string.record_end_before_start, Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        mListener.createNewRecord(date, startTime, endTime);
+        System.out.println("OK");
+
+        dialog.dismiss();
     }
 
     private void setupForm(View view) {
@@ -180,12 +206,12 @@ public class NewRecordFragment extends DialogFragment {
                                 .OnDateSetListener() {
                             @Override
                             public void onDateSet(CalendarDatePickerDialog calendarDatePickerDialog, int year, int month, int day) {
-                                date = LocalDate.of(year, month, day);
+                                date = LocalDate.of(year, month + 1, day);
                                 stateUpdated();
                             }
                         },
                         date.getYear(),
-                        date.getMonthValue(),
+                        date.getMonthValue() - 1,
                         date.getDayOfMonth()).show(getFragmentManager(), "calendardatepicker");
     }
 

@@ -14,5 +14,7 @@
     <string name="dialog_new_abort">Abbrechen</string>
     <string name="title_activity_worktime">Worktime</string>
     <string name="hello_world">Hello world!</string>
+    <string name="record_missing_fields_message">Der Eintrag kann nur gespeichert werden, wenn alle Felder ausgefüllt sind.</string>
+    <string name="record_end_before_start">Die Endzeit muss nach der Startzeit sein - Logisch!</string>
 
 </resources>
