@@ -9,6 +9,7 @@ public final class DateUtil {
 
     public final static DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ofPattern("dd. MM. YYYY");
     public final static DateTimeFormatter DATE_FORMAT_SHORT = DateTimeFormatter.ofPattern("dd. MM.");
+    public final static DateTimeFormatter DATE_FORMAT_MONTH = DateTimeFormatter.ofPattern("MMMYY");
 
     public final static DateTimeFormatter TIME_FORMAT = DateTimeFormatter.ofPattern("HH:mm");
 

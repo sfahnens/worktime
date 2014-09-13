@@ -151,7 +151,7 @@ public class Worktime extends FragmentActivity implements NewRecordFragment.NewF
         String tag = "android:switcher:" + R.id.pager + ":" + dbFormatted;
         RecordsFragment fragment = (RecordsFragment) getFragmentManager().findFragmentByTag(tag);
 
-        if(fragment != null) {
+        if (fragment != null) {
             fragment.onRecordsUpdated();
         }
     }
@@ -190,7 +190,17 @@ public class Worktime extends FragmentActivity implements NewRecordFragment.NewF
 
         @Override
         public CharSequence getPageTitle(int position) {
-            return months.get(position);
+            String dbFormatted = months.get(position);
+
+            if (dbFormatted.length() == 6) {
+
+                LocalDate date = LocalDate.of(Integer.valueOf(dbFormatted.substring(0, 4)),
+                        Integer.valueOf(dbFormatted.substring(4)), 1);
+
+                return DateUtil.DATE_FORMAT_MONTH.format(date).toUpperCase();
+            }
+
+            return "-";
         }
     }
 
