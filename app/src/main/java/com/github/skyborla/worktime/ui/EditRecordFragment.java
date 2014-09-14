@@ -32,13 +32,11 @@ public class EditRecordFragment extends RecordFormFragment {
         return new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
                 if (!validate()) {
                     return;
                 }
 
                 mListener.updateRecord(id, date, startTime, endTime);
-
                 dialog.dismiss();
             }
         };
@@ -49,6 +47,7 @@ public class EditRecordFragment extends RecordFormFragment {
         return new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                dialog.dismiss();
             }
         };
     }
