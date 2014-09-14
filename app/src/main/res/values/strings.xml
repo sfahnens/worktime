@@ -10,7 +10,7 @@
     <string name="action_new_record">Neuer Eintrag</string>
     <string name="action_settings">Settings</string>
     <string name="hello_blank_fragment">Hello blank fragment</string>
-    <string name="dialog_new_finish">Speichern</string>
+    <string name="dialog_form_submit">Speichern</string>
     <string name="dialog_generic_abort">Abbrechen</string>
     <string name="title_activity_worktime">Worktime</string>
     <string name="hello_world">Hello world!</string>
@@ -25,4 +25,5 @@
 
 
     <string name="undo">Rückgängig</string>
+    <string name="action_edit_record">Eintrag bearbeiten</string>
 </resources>

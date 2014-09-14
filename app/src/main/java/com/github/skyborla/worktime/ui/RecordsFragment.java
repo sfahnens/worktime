@@ -206,13 +206,10 @@ public class RecordsFragment extends Fragment {
 
         switch (item.getItemId()) {
             case R.id.records_context_edit:
-                System.out.println("edit");
-
+                mListener.requestEdit(record);
                 break;
             case R.id.records_context_delete:
-                System.out.println("delete");
                 mListener.requestDelete(record);
-
                 break;
         }
 
@@ -220,6 +217,8 @@ public class RecordsFragment extends Fragment {
     }
 
     public interface RecordsFragmentInteractionListener {
+        void requestEdit(Record record);
+
         void requestDelete(Record record);
     }
 

@@ -5,8 +5,6 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 
-import com.github.skyborla.worktime.Worktime;
-
 import org.threeten.bp.LocalDate;
 import org.threeten.bp.LocalTime;
 import org.threeten.bp.format.DateTimeFormatter;
@@ -38,8 +36,25 @@ public class RecordDataSource {
         dbHelper.close();
     }
 
-    public Record persistRecord(Record record) {
+    public Record persist(Record record) {
 
+        ContentValues values = recordToContentValues(record);
+
+        long id = database.insert(WorktimeSQLiteHelper.TABLE_WORKTIME_RECORDS, null, values);
+
+        Cursor cursor = database.query(WorktimeSQLiteHelper.TABLE_WORKTIME_RECORDS,
+                WorktimeSQLiteHelper.RECORD_COLUMNS,
+                WorktimeSQLiteHelper.COL_ID + " = " + id,
+                null, null, null, null);
+
+        cursor.moveToFirst();
+        Record newRecord = cursorToRecord(cursor);
+        cursor.close();
+
+        return newRecord;
+    }
+
+    private ContentValues recordToContentValues(Record record) {
         ContentValues values = new ContentValues();
 
         if (record.getDate() != null) {
@@ -56,19 +71,7 @@ public class RecordDataSource {
             values.put(WorktimeSQLiteHelper.COL_END_TIME,
                     record.getEndTime().truncatedTo(ChronoUnit.MINUTES).toString());
         }
-
-        long id = database.insert(WorktimeSQLiteHelper.TABLE_WORKTIME_RECORDS, null, values);
-
-        Cursor cursor = database.query(WorktimeSQLiteHelper.TABLE_WORKTIME_RECORDS,
-                WorktimeSQLiteHelper.RECORD_COLUMNS,
-                WorktimeSQLiteHelper.COL_ID + " = " + id,
-                null, null, null, null);
-
-        cursor.moveToFirst();
-        Record newRecord = cursorToRecord(cursor);
-        cursor.close();
-
-        return newRecord;
+        return values;
     }
 
     public List<Record> getAllRecords() {
@@ -139,6 +142,15 @@ public class RecordDataSource {
     }
 
     public void delete(Record record) {
-        database.delete(WorktimeSQLiteHelper.TABLE_WORKTIME_RECORDS, WorktimeSQLiteHelper.COL_ID + " = " + record.getId(), null);
+        database.delete(WorktimeSQLiteHelper.TABLE_WORKTIME_RECORDS,
+                WorktimeSQLiteHelper.COL_ID + " = " + record.getId(), null);
+    }
+
+    public void update(Record record) {
+
+        database.update(WorktimeSQLiteHelper.TABLE_WORKTIME_RECORDS,
+                recordToContentValues(record),
+                WorktimeSQLiteHelper.COL_ID + " = " + record.getId(), null);
+
     }
 }

@@ -17,7 +17,9 @@ import android.view.MenuItem;
 import com.cocosw.undobar.UndoBarController;
 import com.github.skyborla.worktime.model.Record;
 import com.github.skyborla.worktime.model.RecordDataSource;
+import com.github.skyborla.worktime.ui.EditRecordFragment;
 import com.github.skyborla.worktime.ui.NewRecordFragment;
+import com.github.skyborla.worktime.ui.RecordFormFragment;
 import com.github.skyborla.worktime.ui.RecordsFragment;
 
 import org.threeten.bp.LocalDate;
@@ -27,7 +29,7 @@ import java.sql.SQLException;
 import java.util.List;
 
 
-public class Worktime extends FragmentActivity implements NewRecordFragment.NewFragmentInteractionListener, RecordsFragment.RecordsFragmentInteractionListener {
+public class Worktime extends FragmentActivity implements RecordFormFragment.RecordFormFragmentInteractionListener, RecordsFragment.RecordsFragmentInteractionListener {
 
     public static final String PENDING_RECORD = "PENDING_RECORD";
     public static final String PENDING_DATE = "PENDING_DATE";
@@ -147,8 +149,19 @@ public class Worktime extends FragmentActivity implements NewRecordFragment.NewF
         record.setStartTime(startTime);
         record.setEndTime(endTime);
 
-        dataSource.persistRecord(record);
+        dataSource.persist(record);
+        updateView(date, true);
+    }
 
+    @Override
+    public void updateRecord(long id, LocalDate date, LocalTime startTime, LocalTime endTime) {
+        Record record = new Record();
+        record.setId(id);
+        record.setDate(date);
+        record.setStartTime(startTime);
+        record.setEndTime(endTime);
+
+        dataSource.update(record);
         updateView(date, true);
     }
 
@@ -165,11 +178,19 @@ public class Worktime extends FragmentActivity implements NewRecordFragment.NewF
         String tag = "android:switcher:" + R.id.pager + ":" + dbFormatted;
         RecordsFragment fragment = (RecordsFragment) getFragmentManager().findFragmentByTag(tag);
 
-        if (fragment != null)
-
-        {
+        if (fragment != null) {
             fragment.onRecordsUpdated();
         }
+    }
+
+    @Override
+    public void requestEdit(Record record) {
+        EditRecordFragment
+                .newInstance(record.getId(),
+                        record.getDate().toString(),
+                        record.getStartTime().toString(),
+                        record.getEndTime().toString())
+                .show(getSupportFragmentManager(), "editRecord");
     }
 
     @Override
@@ -200,7 +221,7 @@ public class Worktime extends FragmentActivity implements NewRecordFragment.NewF
                                         createNewRecord(record.getDate(), record.getStartTime(), record.getEndTime());
                                     }
                                 })
-                                .duration(8000)
+                                .duration(10000)
                                 .show(true);
                     }
                 })
