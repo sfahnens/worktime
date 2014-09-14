@@ -1,16 +1,20 @@
 package com.github.skyborla.worktime;
 
+import android.app.AlertDialog;
 import android.app.Fragment;
 import android.app.FragmentManager;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.os.Parcelable;
 import android.support.v13.app.FragmentPagerAdapter;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.view.ViewPager;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import com.cocosw.undobar.UndoBarController;
 import com.github.skyborla.worktime.model.Record;
 import com.github.skyborla.worktime.model.RecordDataSource;
 import com.github.skyborla.worktime.ui.NewRecordFragment;
@@ -145,19 +149,62 @@ public class Worktime extends FragmentActivity implements NewRecordFragment.NewF
 
         dataSource.persistRecord(record);
 
+        updateView(date, true);
+    }
+
+    private void updateView(LocalDate date, boolean go) {
         months = dataSource.getMonths();
         mSectionsPagerAdapter.notifyDataSetChanged();
 
         String dbFormatted = RecordDataSource.DB_MONTH_DATE_FORMAT.format(date);
 
-        mViewPager.setCurrentItem(months.indexOf(dbFormatted));
+        if (go) {
+            mViewPager.setCurrentItem(months.indexOf(dbFormatted));
+        }
 
         String tag = "android:switcher:" + R.id.pager + ":" + dbFormatted;
         RecordsFragment fragment = (RecordsFragment) getFragmentManager().findFragmentByTag(tag);
 
-        if (fragment != null) {
+        if (fragment != null)
+
+        {
             fragment.onRecordsUpdated();
         }
+    }
+
+    @Override
+    public void requestDelete(final Record record) {
+
+        String message = "\n \u2022 " + FormatUtil.DATE_FORMAT_MEDIUM.format(record.getDate());
+        message += " (" + FormatUtil.formatTimes(record) + ")\n";
+
+        new AlertDialog.Builder(this)
+                .setTitle(R.string.dialog_confirm_delete_header)
+                .setMessage(message)
+                .setNegativeButton(R.string.dialog_generic_abort, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                    }
+                })
+                .setPositiveButton(R.string.dialog_delete_confirm, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dataSource.delete(record);
+                        updateView(record.getDate(), false);
+
+                        new UndoBarController.UndoBar(Worktime.this)
+                                .message(R.string.undo_delete)
+                                .listener(new UndoBarController.UndoListener() {
+                                    @Override
+                                    public void onUndo(Parcelable parcelable) {
+                                        createNewRecord(record.getDate(), record.getStartTime(), record.getEndTime());
+                                    }
+                                })
+                                .duration(8000)
+                                .show(true);
+                    }
+                })
+                .create().show();
     }
 
     /**
@@ -201,7 +248,7 @@ public class Worktime extends FragmentActivity implements NewRecordFragment.NewF
                 LocalDate date = LocalDate.of(Integer.valueOf(dbFormatted.substring(0, 4)),
                         Integer.valueOf(dbFormatted.substring(4)), 1);
 
-                return DateUtil.DATE_FORMAT_MONTH.format(date).toUpperCase();
+                return FormatUtil.DATE_FORMAT_MONTH.format(date).toUpperCase();
             }
 
             return "-";

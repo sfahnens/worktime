@@ -18,7 +18,7 @@ import android.widget.Toast;
 import com.doomonafireball.betterpickers.calendardatepicker.CalendarDatePickerDialog;
 import com.doomonafireball.betterpickers.radialtimepicker.RadialPickerLayout;
 import com.doomonafireball.betterpickers.radialtimepicker.RadialTimePickerDialog;
-import com.github.skyborla.worktime.DateUtil;
+import com.github.skyborla.worktime.FormatUtil;
 import com.github.skyborla.worktime.R;
 import com.github.skyborla.worktime.Worktime;
 
@@ -123,7 +123,7 @@ public class NewRecordFragment extends DialogFragment {
                 .setTitle(R.string.action_new_record)
                 .setView(view)
                 .setPositiveButton(R.string.dialog_new_finish, null)
-                .setNegativeButton(R.string.dialog_new_abort, new DialogInterface.OnClickListener() {
+                .setNegativeButton(R.string.dialog_generic_abort, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         SharedPreferences.Editor editor = getActivity().getPreferences(Context.MODE_PRIVATE).edit();
@@ -145,6 +145,17 @@ public class NewRecordFragment extends DialogFragment {
                                 validateAndCreate();
                             }
                         });
+
+                ((AlertDialog) dialog).setOnCancelListener(new DialogInterface.OnCancelListener() {
+                    @Override
+                    public void onCancel(DialogInterface dialog) {
+                        System.out.println("try cancel");
+
+
+                    }
+                });
+
+                ((AlertDialog) dialog).setCanceledOnTouchOutside(false);
             }
         });
 
@@ -159,7 +170,7 @@ public class NewRecordFragment extends DialogFragment {
             return;
         }
 
-        if(endTime.isBefore(startTime)) {
+        if (endTime.isBefore(startTime)) {
             Toast.makeText(getActivity(), R.string.record_end_before_start, Toast.LENGTH_SHORT).show();
             return;
         }
@@ -301,21 +312,21 @@ public class NewRecordFragment extends DialogFragment {
             datePreview.setText("--. --. ----");
         } else {
             editor.putString(Worktime.PENDING_DATE, date.toString());
-            datePreview.setText(date.format(DateUtil.DATE_FORMAT));
+            datePreview.setText(date.format(FormatUtil.DATE_FORMAT));
         }
 
         if (startTime == null) {
             startTimePreview.setText("--:--");
         } else {
             editor.putString(Worktime.PENDING_START_TIME, startTime.toString());
-            startTimePreview.setText(startTime.format(DateUtil.TIME_FORMAT));
+            startTimePreview.setText(startTime.format(FormatUtil.TIME_FORMAT));
         }
 
         if (endTime == null) {
             endTimePreview.setText("--:--");
         } else {
             editor.putString(Worktime.PENDING_END_TIME, endTime.toString());
-            endTimePreview.setText(endTime.format(DateUtil.TIME_FORMAT));
+            endTimePreview.setText(endTime.format(FormatUtil.TIME_FORMAT));
         }
 
         editor.commit();

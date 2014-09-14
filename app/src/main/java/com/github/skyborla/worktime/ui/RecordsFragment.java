@@ -3,13 +3,17 @@ package com.github.skyborla.worktime.ui;
 import android.app.Activity;
 import android.app.Fragment;
 import android.os.Bundle;
+import android.view.ContextMenu;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import com.github.skyborla.worktime.FormatUtil;
 import com.github.skyborla.worktime.R;
 import com.github.skyborla.worktime.model.Record;
 import com.github.skyborla.worktime.model.RecordDataSource;
@@ -99,8 +103,11 @@ public class RecordsFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
 
         recordsList = (ListView) view.findViewById(R.id.records_list);
+
         summary = (TextView) view.findViewById(R.id.records_summary);
         onRecordsUpdated();
+
+        registerForContextMenu(recordsList);
     }
 
     public void onRecordsUpdated() {
@@ -173,7 +180,47 @@ public class RecordsFragment extends Fragment {
         mListener = null;
     }
 
+    @Override
+    public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
+        AdapterView.AdapterContextMenuInfo adapterInfo = (AdapterView.AdapterContextMenuInfo) menuInfo;
+        Object item = adapter.getItem(adapterInfo.position);
+
+        if (!(item instanceof Record)) {
+            return;
+        }
+        Record record = (Record) item;
+
+        String header = FormatUtil.DATE_FORMAT_SHORT.format(record.getDate());
+        header += " (" + FormatUtil.formatTimes(record) + ")";
+
+        menu.setHeaderTitle(header);
+        menu.setHeaderIcon(R.drawable.ic_launcher);
+
+        getActivity().getMenuInflater().inflate(R.menu.records_context, menu);
+    }
+
+    @Override
+    public boolean onContextItemSelected(MenuItem item) {
+        AdapterView.AdapterContextMenuInfo adapterInfo = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
+        Record record = (Record) adapter.getItem(adapterInfo.position);
+
+        switch (item.getItemId()) {
+            case R.id.records_context_edit:
+                System.out.println("edit");
+
+                break;
+            case R.id.records_context_delete:
+                System.out.println("delete");
+                mListener.requestDelete(record);
+
+                break;
+        }
+
+        return true;
+    }
+
     public interface RecordsFragmentInteractionListener {
+        void requestDelete(Record record);
     }
 
     public static class RecordHolder {

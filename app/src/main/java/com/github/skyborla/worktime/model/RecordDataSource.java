@@ -5,6 +5,8 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 
+import com.github.skyborla.worktime.Worktime;
+
 import org.threeten.bp.LocalDate;
 import org.threeten.bp.LocalTime;
 import org.threeten.bp.format.DateTimeFormatter;
@@ -136,4 +138,7 @@ public class RecordDataSource {
         return record;
     }
 
+    public void delete(Record record) {
+        database.delete(WorktimeSQLiteHelper.TABLE_WORKTIME_RECORDS, WorktimeSQLiteHelper.COL_ID + " = " + record.getId(), null);
+    }
 }

@@ -8,7 +8,7 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
-import com.github.skyborla.worktime.DateUtil;
+import com.github.skyborla.worktime.FormatUtil;
 import com.github.skyborla.worktime.R;
 import com.github.skyborla.worktime.model.Record;
 
@@ -104,15 +104,13 @@ public class RecordsAdapter extends ArrayAdapter<Object> {
             holder = (RecordsFragment.RecordHolder) row.getTag();
         }
 
-        holder.dateText.setText(DateUtil.DATE_FORMAT_SHORT.format(record.getDate()));
+        holder.dateText.setText(FormatUtil.DATE_FORMAT_MEDIUM.format(record.getDate()));
 
         Duration duration = Duration.between(record.getStartTime(), record.getEndTime());
         LocalTime hackedDuration = LocalTime.of(0, 0).plus(duration);
-        holder.durationText.setText("(" + DateUtil.TIME_FORMAT.format(hackedDuration) + ")");
+        holder.durationText.setText("(" + FormatUtil.TIME_FORMAT.format(hackedDuration) + ")");
 
-        String startTime = DateUtil.TIME_FORMAT.format(record.getStartTime());
-        String endTime = DateUtil.TIME_FORMAT.format(record.getEndTime());
-        holder.timeText.setText(startTime + " - " + endTime);
+        holder.timeText.setText(FormatUtil.formatTimes(record));
 
         return row;
     }
