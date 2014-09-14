@@ -93,7 +93,6 @@ public class Worktime extends FragmentActivity implements RecordFormFragment.Rec
         } else if (months.size() > 0) {
             mViewPager.setCurrentItem(months.size() - 1);
         }
-
     }
 
     @Override

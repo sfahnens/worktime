@@ -104,7 +104,6 @@ public abstract class RecordFormFragment extends DialogFragment {
                 .setView(view)
                 .setPositiveButton(R.string.dialog_form_submit, null)
                 .setNegativeButton(R.string.dialog_generic_abort, null)
-                .setCancelable(isDialogCancelable())
                 .create();
 
         dialog.setOnShowListener(new DialogInterface.OnShowListener() {
@@ -127,6 +126,7 @@ public abstract class RecordFormFragment extends DialogFragment {
                     });
 
                     ((AlertDialog) dialog).setCanceledOnTouchOutside(false);
+                    ((AlertDialog) dialog).setCancelable(false);
                 }
             }
         });
