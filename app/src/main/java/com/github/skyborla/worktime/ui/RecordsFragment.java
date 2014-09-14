@@ -8,6 +8,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.BaseAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 
@@ -155,9 +156,7 @@ public class RecordsFragment extends Fragment {
     }
 
     public void onRecordsUpdated() {
-        adapter.clear();
-        adapter.addAll(loadModel());
-        adapter.notifyDataSetChanged();
+        adapter = new RecordsAdapter(getActivity(), loadModel());
 
         System.out.println("list updated");
     }
@@ -169,7 +168,31 @@ public class RecordsFragment extends Fragment {
 
         public RecordsAdapter(Context context, List<Object> objects) {
             super(context, 0, objects);
+        }
 
+        @Override
+        public int getViewTypeCount() {
+            return 2;
+        }
+
+        @Override
+        public int getItemViewType(int position) { // TODO
+            return super.getItemViewType(position);
+        }
+
+        @Override
+        public int getCount() {
+            return 0;
+        }
+
+        @Override
+        public Object getItem(int position) {
+            return null;
+        }
+
+        @Override
+        public long getItemId(int position) {
+            return 0; // TODO
         }
 
         @Override

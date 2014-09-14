@@ -92,7 +92,8 @@ public class RecordDataSource {
         List<String> months = new ArrayList<String>();
         Cursor cursor = database.query(WorktimeSQLiteHelper.TABLE_WORKTIME_RECORDS,
                 new String[]{WorktimeSQLiteHelper.COL_MONTH},
-                null, null, WorktimeSQLiteHelper.COL_MONTH, null, null);
+                null, null, WorktimeSQLiteHelper.COL_MONTH, null,
+                WorktimeSQLiteHelper.COL_MONTH + " ASC");
 
         cursor.moveToFirst();
         while (!cursor.isAfterLast()) {
