@@ -202,7 +202,13 @@ public class RecordsFragment extends Fragment {
     @Override
     public boolean onContextItemSelected(MenuItem item) {
         AdapterView.AdapterContextMenuInfo adapterInfo = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
-        Record record = (Record) adapter.getItem(adapterInfo.position);
+        Record record;
+        try {
+            record = (Record) adapter.getItem(adapterInfo.position);
+        }catch (IndexOutOfBoundsException e) {
+            e.printStackTrace();
+            return false;
+        }
 
         switch (item.getItemId()) {
             case R.id.records_context_edit:

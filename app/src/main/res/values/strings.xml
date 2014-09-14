@@ -26,4 +26,5 @@
 
     <string name="undo">Rückgängig</string>
     <string name="action_edit_record">Eintrag bearbeiten</string>
+    <string name="action_send_email">E-Mail</string>
 </resources>

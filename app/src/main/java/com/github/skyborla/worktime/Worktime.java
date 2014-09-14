@@ -5,7 +5,9 @@ import android.app.Fragment;
 import android.app.FragmentManager;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.SharedPreferences;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.support.v13.app.FragmentPagerAdapter;
@@ -25,6 +27,8 @@ import com.github.skyborla.worktime.ui.RecordsFragment;
 import org.threeten.bp.LocalDate;
 import org.threeten.bp.LocalTime;
 
+import java.io.File;
+import java.io.IOException;
 import java.sql.SQLException;
 import java.util.List;
 
@@ -125,14 +129,30 @@ public class Worktime extends FragmentActivity implements RecordFormFragment.Rec
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
 
-        if (id == R.id.action_new_record) {
-            NewRecordFragment.newInstance().show(getSupportFragmentManager(), "newRecord");
-            return true;
+
+        switch (item.getItemId()) {
+            case R.id.action_new_record:
+                NewRecordFragment.newInstance().show(getSupportFragmentManager(), "newRecord");
+                return true;
+            case R.id.action_send_email:
+
+
+                try {
+                    File temp = File.createTempFile("asd", "bsd", getCacheDir());
+
+                    Intent intent = new Intent(Intent.ACTION_SEND);
+                    intent.setType("application/octet-stream");
+                    intent.putExtra(Intent.EXTRA_STREAM, Uri.fromFile(temp));
+                    startActivity(Intent.createChooser(intent, "Email senden"));
+
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+
+
+                return true;
         }
 
-        if (id == R.id.action_settings) {
-            return true;
-        }
         return super.onOptionsItemSelected(item);
     }
 
