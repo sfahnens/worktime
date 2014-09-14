@@ -63,4 +63,30 @@ public class Record implements Serializable {
     public String toString() {
         return id.toString();
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Record record = (Record) o;
+
+        if (date != null ? !date.equals(record.date) : record.date != null) return false;
+        if (endTime != null ? !endTime.equals(record.endTime) : record.endTime != null)
+            return false;
+        if (id != null ? !id.equals(record.id) : record.id != null) return false;
+        if (startTime != null ? !startTime.equals(record.startTime) : record.startTime != null)
+            return false;
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = id != null ? id.hashCode() : 0;
+        result = 31 * result + (date != null ? date.hashCode() : 0);
+        result = 31 * result + (startTime != null ? startTime.hashCode() : 0);
+        result = 31 * result + (endTime != null ? endTime.hashCode() : 0);
+        return result;
+    }
 }

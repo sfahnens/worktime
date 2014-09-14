@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <plurals name="total_worktime_hours">
+        <item quantity="one">eine Stunde</item>
+        <item quantity="other">%d Stunden</item>
+    </plurals>
+
+    <plurals name="total_worktime_minutes">
+        <item quantity="one">eine Minute</item>
+        <item quantity="other">%d Minuten</item>
+    </plurals>
+
+    <plurals name="total_worktime_days">
+        <item quantity="one">einem Tag</item>
+        <item quantity="other">%d Tagen</item>
+    </plurals>
+
+</resources>

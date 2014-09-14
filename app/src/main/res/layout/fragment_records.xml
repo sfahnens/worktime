@@ -2,7 +2,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.github.skyborla.worktime.ui.RecordsFragment">
+    tools:context="com.github.skyborla.worktime.ui.RecordsFragment"
+    android:background="#efefef">
 
     <ListView
         android:layout_width="match_parent"
@@ -15,20 +16,23 @@
         android:layout_alignParentLeft="false"
         android:layout_alignParentTop="true"
         android:layout_alignParentEnd="false"
-        android:layout_above="@+id/monthly_summary" />
+        android:layout_above="@+id/records_summary" />
 
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="asdf"
         android:layout_weight="1"
+        android:background="@drawable/footer"
         android:layout_gravity="center_horizontal|bottom"
-        android:padding="8dp"
+        android:paddingLeft="8dp"
+        android:paddingRight="8dp"
+        android:paddingBottom="16dp"
+        android:paddingTop="8dp"
         android:layout_alignParentLeft="true"
         android:layout_alignParentTop="false"
         android:layout_alignParentEnd="false"
         android:layout_alignParentBottom="true"
-        android:id="@+id/monthly_summary" />
+        android:id="@+id/records_summary" />
 
 
 </RelativeLayout>

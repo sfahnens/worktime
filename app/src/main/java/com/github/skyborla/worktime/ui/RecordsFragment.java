@@ -2,28 +2,27 @@ package com.github.skyborla.worktime.ui;
 
 import android.app.Activity;
 import android.app.Fragment;
-import android.content.Context;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
-import android.widget.BaseAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 
-import com.github.skyborla.worktime.DateUtil;
 import com.github.skyborla.worktime.R;
 import com.github.skyborla.worktime.model.Record;
 import com.github.skyborla.worktime.model.RecordDataSource;
 
 import org.threeten.bp.Duration;
-import org.threeten.bp.LocalTime;
+import org.threeten.bp.LocalDate;
 import org.threeten.bp.temporal.WeekFields;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 
 /**
@@ -39,6 +38,7 @@ public class RecordsFragment extends Fragment {
     private String month;
 
     private ListView recordsList;
+    private TextView summary;
 
     private RecordDataSource dataSource;
 
@@ -64,10 +64,6 @@ public class RecordsFragment extends Fragment {
             month = getArguments().getString(ARG_MONTH);
         }
 
-        System.out.println("TAG: " + getTag());
-        System.out.println("ID: " + getId());
-
-
         dataSource = new RecordDataSource(getActivity());
 
         try {
@@ -86,13 +82,6 @@ public class RecordsFragment extends Fragment {
         }
         super.onResume();
     }
-//
-//    @Override
-//    public void onPause() {
-//        dataSource.close();
-//        super.onPause();
-//    }
-
 
     public String getMonth() {
         return month;
@@ -109,33 +98,62 @@ public class RecordsFragment extends Fragment {
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        adapter = new RecordsAdapter(getActivity(), loadModel());
-
         recordsList = (ListView) view.findViewById(R.id.records_list);
-        recordsList.setAdapter(adapter);
+        summary = (TextView) view.findViewById(R.id.records_summary);
+        onRecordsUpdated();
     }
 
-    private List<Object> loadModel() {
+    public void onRecordsUpdated() {
+
+        Set<LocalDate> workedDays = new HashSet<LocalDate>();
+        Duration totalWorktime = Duration.ZERO;
 
         int lastWeek = -1;
-
-        List<Object> elements = new ArrayList<Object>();
+        List<Object> listElements = new ArrayList<Object>();
 
         for (Record record : dataSource.getRecords(month)) {
+
+            // build list
             int thisWeek = record.getDate().get(WeekFields.ISO.weekOfYear());
 
             if (thisWeek != lastWeek) {
                 WeekHeader header = new WeekHeader();
                 header.week = thisWeek;
 
-                elements.add(header);
+                listElements.add(header);
                 lastWeek = thisWeek;
             }
 
-            elements.add(record);
+            listElements.add(record);
+
+            // build summary
+            workedDays.add(record.getDate());
+            Duration worktime = Duration.between(record.getStartTime(), record.getEndTime());
+
+            totalWorktime = totalWorktime.plus(worktime);
         }
 
-        return elements;
+        adapter = new RecordsAdapter(getActivity(), listElements);
+        recordsList.setAdapter(adapter);
+
+
+        long seconds = totalWorktime.getSeconds();
+        if (seconds == 0) {
+            summary.setText("Diesen Monat nicht gearbeitet.");
+
+        } else {
+
+            int h = (int) seconds / 3600;
+            int m = (int) (seconds / 60) % 60;
+            int d = workedDays.size();
+
+            String minutes = (m == 0) ? "" : getResources().getQuantityString(R.plurals.total_worktime_minutes, m, m) + " ";
+            String hours = (h == 0) ? "" : getResources().getQuantityString(R.plurals.total_worktime_hours, h, h) + " ";
+
+            String days = getResources().getQuantityString(R.plurals.total_worktime_days, d, d);
+
+            summary.setText("Gesamt: " + hours + minutes + "an " + days + ".");
+        }
     }
 
     @Override
@@ -155,103 +173,7 @@ public class RecordsFragment extends Fragment {
         mListener = null;
     }
 
-    public void onRecordsUpdated() {
-        adapter = new RecordsAdapter(getActivity(), loadModel());
-
-        System.out.println("list updated");
-    }
-
     public interface RecordsFragmentInteractionListener {
-    }
-
-    public class RecordsAdapter extends ArrayAdapter<Object> {
-
-        public RecordsAdapter(Context context, List<Object> objects) {
-            super(context, 0, objects);
-        }
-
-        @Override
-        public int getViewTypeCount() {
-            return 2;
-        }
-
-        @Override
-        public int getItemViewType(int position) { // TODO
-            return super.getItemViewType(position);
-        }
-
-        @Override
-        public int getCount() {
-            return 0;
-        }
-
-        @Override
-        public Object getItem(int position) {
-            return null;
-        }
-
-        @Override
-        public long getItemId(int position) {
-            return 0; // TODO
-        }
-
-        @Override
-        public View getView(int position, View row, ViewGroup parent) {
-            RecordHolder holder = null;
-
-            Object i = getItem(position);
-
-            if (i instanceof WeekHeader) {
-                return getWeekHeaderRow(row, parent, (WeekHeader) i);
-            }
-
-            if (i instanceof Record) {
-                return getRecordRow(row, parent, (Record) i);
-            }
-
-            throw new IllegalArgumentException();
-        }
-
-        private View getWeekHeaderRow(View row, ViewGroup parent, WeekHeader i) {
-            RecordHolder holder;
-            if (row == null) {
-                LayoutInflater inflater = ((Activity) getContext()).getLayoutInflater();
-                row = inflater.inflate(R.layout.record_list_header, parent, false);
-            }
-
-            TextView text = (TextView) row.findViewById(R.id.record_list_week);
-            text.setText("KW " + Integer.toString(i.week));
-            return row;
-        }
-
-        private View getRecordRow(View row, ViewGroup parent, Record record) {
-            RecordHolder holder;
-            if (row == null) {
-                LayoutInflater inflater = ((Activity) getContext()).getLayoutInflater();
-                row = inflater.inflate(R.layout.record_list_item, parent, false);
-
-                holder = new RecordHolder();
-                holder.dateText = (TextView) row.findViewById(R.id.record_list_date);
-                holder.durationText = (TextView) row.findViewById(R.id.record_list_duration);
-                holder.timeText = (TextView) row.findViewById(R.id.record_list_time);
-
-                row.setTag(holder);
-            } else {
-                holder = (RecordHolder) row.getTag();
-            }
-
-            holder.dateText.setText(DateUtil.DATE_FORMAT_SHORT.format(record.getDate()));
-
-            Duration duration = Duration.between(record.getStartTime(), record.getEndTime());
-            LocalTime hackedDuration = LocalTime.of(0, 0).plus(duration);
-            holder.durationText.setText("(" + DateUtil.TIME_FORMAT.format(hackedDuration) + ")");
-
-            String startTime = DateUtil.TIME_FORMAT.format(record.getStartTime());
-            String endTime = DateUtil.TIME_FORMAT.format(record.getEndTime());
-            holder.timeText.setText(startTime + " - " + endTime);
-
-            return row;
-        }
     }
 
     public static class RecordHolder {
@@ -262,6 +184,21 @@ public class RecordsFragment extends Fragment {
 
     public static class WeekHeader {
         public int week;
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+
+            WeekHeader that = (WeekHeader) o;
+            if (week != that.week) return false;
+            return true;
+        }
+
+        @Override
+        public int hashCode() {
+            return week;
+        }
     }
 
 }
