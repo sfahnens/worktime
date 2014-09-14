@@ -109,7 +109,10 @@ public class RecordDataSource {
 
         Cursor cursor = database.query(WorktimeSQLiteHelper.TABLE_WORKTIME_RECORDS,
                 WorktimeSQLiteHelper.RECORD_COLUMNS,
-                WorktimeSQLiteHelper.COL_MONTH + " = " + month, null, null, null, null);
+                WorktimeSQLiteHelper.COL_MONTH + " = " + month, null, null, null,
+                WorktimeSQLiteHelper.COL_DATE + " ASC, " +
+                        WorktimeSQLiteHelper.COL_START_TIME + " ASC, " +
+                        WorktimeSQLiteHelper.COL_END_TIME + " ASC");
 
         cursor.moveToFirst();
         while (!cursor.isAfterLast()) {

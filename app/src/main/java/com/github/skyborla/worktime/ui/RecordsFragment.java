@@ -18,8 +18,10 @@ import com.github.skyborla.worktime.model.RecordDataSource;
 
 import org.threeten.bp.Duration;
 import org.threeten.bp.LocalTime;
+import org.threeten.bp.temporal.WeekFields;
 
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
 
 
@@ -40,7 +42,7 @@ public class RecordsFragment extends Fragment {
     private RecordDataSource dataSource;
 
     private RecordsFragmentInteractionListener mListener;
-    private ArrayAdapter<Record> adapter;
+    private ArrayAdapter<Object> adapter;
 
     public static RecordsFragment newInstance(String month) {
         RecordsFragment fragment = new RecordsFragment();
@@ -106,13 +108,33 @@ public class RecordsFragment extends Fragment {
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        List<Record> records = dataSource.getRecords(month);
-        adapter = new RecordsAdapter(getActivity(),
-                R.layout.record_list_item,
-                records);
+        adapter = new RecordsAdapter(getActivity(), loadModel());
 
         recordsList = (ListView) view.findViewById(R.id.records_list);
         recordsList.setAdapter(adapter);
+    }
+
+    private List<Object> loadModel() {
+
+        int lastWeek = -1;
+
+        List<Object> elements = new ArrayList<Object>();
+
+        for (Record record : dataSource.getRecords(month)) {
+            int thisWeek = record.getDate().get(WeekFields.ISO.weekOfYear());
+
+            if (thisWeek != lastWeek) {
+                WeekHeader header = new WeekHeader();
+                header.week = thisWeek;
+
+                elements.add(header);
+                lastWeek = thisWeek;
+            }
+
+            elements.add(record);
+        }
+
+        return elements;
     }
 
     @Override
@@ -134,7 +156,7 @@ public class RecordsFragment extends Fragment {
 
     public void onRecordsUpdated() {
         adapter.clear();
-        adapter.addAll(dataSource.getRecords(month));
+        adapter.addAll(loadModel());
         adapter.notifyDataSetChanged();
 
         System.out.println("list updated");
@@ -143,25 +165,47 @@ public class RecordsFragment extends Fragment {
     public interface RecordsFragmentInteractionListener {
     }
 
-    public class RecordsAdapter extends ArrayAdapter<Record> {
+    public class RecordsAdapter extends ArrayAdapter<Object> {
 
+        public RecordsAdapter(Context context, List<Object> objects) {
+            super(context, 0, objects);
 
-        private int layoutResource;
-
-        public RecordsAdapter(Context context, int layoutResource, List<Record> objects) {
-            super(context, layoutResource, objects);
-
-            this.layoutResource = layoutResource;
         }
-
 
         @Override
         public View getView(int position, View row, ViewGroup parent) {
             RecordHolder holder = null;
 
+            Object i = getItem(position);
+
+            if (i instanceof WeekHeader) {
+                return getWeekHeaderRow(row, parent, (WeekHeader) i);
+            }
+
+            if (i instanceof Record) {
+                return getRecordRow(row, parent, (Record) i);
+            }
+
+            throw new IllegalArgumentException();
+        }
+
+        private View getWeekHeaderRow(View row, ViewGroup parent, WeekHeader i) {
+            RecordHolder holder;
             if (row == null) {
                 LayoutInflater inflater = ((Activity) getContext()).getLayoutInflater();
-                row = inflater.inflate(layoutResource, parent, false);
+                row = inflater.inflate(R.layout.record_list_header, parent, false);
+            }
+
+            TextView text = (TextView) row.findViewById(R.id.record_list_week);
+            text.setText("KW " + Integer.toString(i.week));
+            return row;
+        }
+
+        private View getRecordRow(View row, ViewGroup parent, Record record) {
+            RecordHolder holder;
+            if (row == null) {
+                LayoutInflater inflater = ((Activity) getContext()).getLayoutInflater();
+                row = inflater.inflate(R.layout.record_list_item, parent, false);
 
                 holder = new RecordHolder();
                 holder.dateText = (TextView) row.findViewById(R.id.record_list_date);
@@ -173,13 +217,11 @@ public class RecordsFragment extends Fragment {
                 holder = (RecordHolder) row.getTag();
             }
 
-            Record record = getItem(position);
-
             holder.dateText.setText(DateUtil.DATE_FORMAT_SHORT.format(record.getDate()));
 
             Duration duration = Duration.between(record.getStartTime(), record.getEndTime());
             LocalTime hackedDuration = LocalTime.of(0, 0).plus(duration);
-            holder.durationText.setText(DateUtil.TIME_FORMAT.format(hackedDuration));
+            holder.durationText.setText("(" + DateUtil.TIME_FORMAT.format(hackedDuration) + ")");
 
             String startTime = DateUtil.TIME_FORMAT.format(record.getStartTime());
             String endTime = DateUtil.TIME_FORMAT.format(record.getEndTime());
@@ -193,6 +235,10 @@ public class RecordsFragment extends Fragment {
         public TextView dateText;
         public TextView durationText;
         public TextView timeText;
+    }
+
+    public static class WeekHeader {
+        public int week;
     }
 
 }
