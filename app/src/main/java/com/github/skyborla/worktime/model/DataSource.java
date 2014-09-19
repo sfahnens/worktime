@@ -74,24 +74,6 @@ public class DataSource {
         return values;
     }
 
-    public List<WorkRecord> getAllRecords() {
-        List<WorkRecord> workRecords = new ArrayList<WorkRecord>();
-
-        Cursor cursor = database.query(WorktimeSQLiteHelper.TABLE_WORKTIME_RECORDS,
-                WorktimeSQLiteHelper.RECORD_COLUMNS,
-                null, null, null, null, null);
-
-        cursor.moveToFirst();
-        while (!cursor.isAfterLast()) {
-            workRecords.add(cursorToRecord(cursor));
-            cursor.moveToNext();
-        }
-
-        cursor.close();
-        return workRecords;
-    }
-
-
     public List<String> getMonths() {
 
         List<String> months = new ArrayList<String>();
