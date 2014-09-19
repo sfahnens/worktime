@@ -20,12 +20,12 @@ import java.util.List;
 public class DataSource {
 
     private SQLiteDatabase database;
-    private WorktimeSQLiteHelper dbHelper;
+    private DB dbHelper;
 
     public static final DateTimeFormatter DB_MONTH_DATE_FORMAT = DateTimeFormatter.ofPattern("YYYYMM");
 
     public DataSource(Context context) {
-        dbHelper = new WorktimeSQLiteHelper(context);
+        dbHelper = new DB(context);
     }
 
     public void open() throws SQLException {
@@ -36,51 +36,15 @@ public class DataSource {
         dbHelper.close();
     }
 
-    public WorkRecord persist(WorkRecord workRecord) {
-
-        ContentValues values = recordToContentValues(workRecord);
-
-        long id = database.insert(WorktimeSQLiteHelper.TABLE_WORKTIME_RECORDS, null, values);
-
-        Cursor cursor = database.query(WorktimeSQLiteHelper.TABLE_WORKTIME_RECORDS,
-                WorktimeSQLiteHelper.RECORD_COLUMNS,
-                WorktimeSQLiteHelper.COL_ID + " = " + id,
-                null, null, null, null);
-
-        cursor.moveToFirst();
-        WorkRecord newWorkRecord = cursorToRecord(cursor);
-        cursor.close();
-
-        return newWorkRecord;
-    }
-
-    private ContentValues recordToContentValues(WorkRecord workRecord) {
-        ContentValues values = new ContentValues();
-
-        if (workRecord.getDate() != null) {
-            values.put(WorktimeSQLiteHelper.COL_DATE, workRecord.getDate().toString());
-            values.put(WorktimeSQLiteHelper.COL_MONTH, DB_MONTH_DATE_FORMAT.format(workRecord.getDate()));
-        }
-
-        if (workRecord.getStartTime() != null) {
-            values.put(WorktimeSQLiteHelper.COL_START_TIME,
-                    workRecord.getStartTime().truncatedTo(ChronoUnit.MINUTES).toString());
-        }
-
-        if (workRecord.getEndTime() != null) {
-            values.put(WorktimeSQLiteHelper.COL_END_TIME,
-                    workRecord.getEndTime().truncatedTo(ChronoUnit.MINUTES).toString());
-        }
-        return values;
-    }
-
     public List<String> getMonths() {
 
         List<String> months = new ArrayList<String>();
-        Cursor cursor = database.query(WorktimeSQLiteHelper.TABLE_WORKTIME_RECORDS,
-                new String[]{WorktimeSQLiteHelper.COL_MONTH},
-                null, null, WorktimeSQLiteHelper.COL_MONTH, null,
-                WorktimeSQLiteHelper.COL_MONTH + " ASC");
+
+        String table = DB.TABLE_WORK_RECORDS;
+        String[] columns = new String[]{DB.COL_MONTH};
+        String groupBy = DB.COL_MONTH;
+        String orderBy = DB.COL_MONTH + " ASC";
+        Cursor cursor = database.query(table, columns, null, null, groupBy, null, orderBy);
 
         cursor.moveToFirst();
         while (!cursor.isAfterLast()) {
@@ -92,19 +56,25 @@ public class DataSource {
         return months;
     }
 
-    public List<WorkRecord> getRecords(String month) {
+    public void persistWorkRecord(WorkRecord workRecord) {
+
+        String table = DB.TABLE_WORK_RECORDS;
+        ContentValues values = workRecordToContentValues(workRecord);
+        database.insert(table, null, values);
+    }
+
+    public List<WorkRecord> getWorkRecords(String month) {
         List<WorkRecord> workRecords = new ArrayList<WorkRecord>();
 
-        Cursor cursor = database.query(WorktimeSQLiteHelper.TABLE_WORKTIME_RECORDS,
-                WorktimeSQLiteHelper.RECORD_COLUMNS,
-                WorktimeSQLiteHelper.COL_MONTH + " = " + month, null, null, null,
-                WorktimeSQLiteHelper.COL_DATE + " ASC, " +
-                        WorktimeSQLiteHelper.COL_START_TIME + " ASC, " +
-                        WorktimeSQLiteHelper.COL_END_TIME + " ASC");
+        String table = DB.TABLE_WORK_RECORDS;
+        String[] columns = DB.WORK_RECORD_COLUMNS;
+        String where = DB.COL_MONTH + " = " + month;
+        String orderBy = DB.COL_DATE + " ASC, " + DB.COL_START_TIME + " ASC, " + DB.COL_END_TIME + " ASC";
+        Cursor cursor = database.query(table, columns, where, null, null, null, orderBy);
 
         cursor.moveToFirst();
         while (!cursor.isAfterLast()) {
-            workRecords.add(cursorToRecord(cursor));
+            workRecords.add(cursorToWorkRecord(cursor));
             cursor.moveToNext();
         }
 
@@ -112,8 +82,20 @@ public class DataSource {
         return workRecords;
     }
 
-    private WorkRecord cursorToRecord(Cursor cursor) {
+    public void updateWorkRecord(WorkRecord workRecord) {
+        String table = DB.TABLE_WORK_RECORDS;
+        ContentValues values = workRecordToContentValues(workRecord);
+        String whereClause = DB.COL_ID + " = " + workRecord.getId();
+        database.update(table, values, whereClause, null);
+    }
 
+    public void deleteWorkRecord(WorkRecord workRecord) {
+        String table = DB.TABLE_WORK_RECORDS;
+        String whereClause = DB.COL_ID + " = " + workRecord.getId();
+        database.delete(table, whereClause, null);
+    }
+
+    private WorkRecord cursorToWorkRecord(Cursor cursor) {
         WorkRecord workRecord = new WorkRecord();
         workRecord.setId(cursor.getLong(0));
         workRecord.setDate(LocalDate.parse(cursor.getString(1)));
@@ -123,16 +105,23 @@ public class DataSource {
         return workRecord;
     }
 
-    public void delete(WorkRecord workRecord) {
-        database.delete(WorktimeSQLiteHelper.TABLE_WORKTIME_RECORDS,
-                WorktimeSQLiteHelper.COL_ID + " = " + workRecord.getId(), null);
-    }
+    private ContentValues workRecordToContentValues(WorkRecord workRecord) {
+        ContentValues values = new ContentValues();
 
-    public void update(WorkRecord workRecord) {
+        if (workRecord.getDate() != null) {
+            values.put(DB.COL_DATE, workRecord.getDate().toString());
+            values.put(DB.COL_MONTH, DB_MONTH_DATE_FORMAT.format(workRecord.getDate()));
+        }
 
-        database.update(WorktimeSQLiteHelper.TABLE_WORKTIME_RECORDS,
-                recordToContentValues(workRecord),
-                WorktimeSQLiteHelper.COL_ID + " = " + workRecord.getId(), null);
+        if (workRecord.getStartTime() != null) {
+            values.put(DB.COL_START_TIME,
+                    workRecord.getStartTime().truncatedTo(ChronoUnit.MINUTES).toString());
+        }
 
+        if (workRecord.getEndTime() != null) {
+            values.put(DB.COL_END_TIME,
+                    workRecord.getEndTime().truncatedTo(ChronoUnit.MINUTES).toString());
+        }
+        return values;
     }
 }

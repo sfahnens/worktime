@@ -17,6 +17,7 @@ import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.github.skyborla.worktime.ModelInteraction;
 import com.github.skyborla.worktime.R;
 import com.github.skyborla.worktime.model.LeaveReason;
 import com.github.skyborla.worktime.ui.control.DateControl;
@@ -35,7 +36,7 @@ public class LeaveRecordFormFragment extends DialogFragment implements FormUpdat
     private static final String ARG_WORKDAYS = "workdays";
     public static final LeaveReason DEFAULT_LEAVE_REASON = LeaveReason.VACATION;
 
-    private LeaveRecordFragmentInteractionListener mListener;
+    private ModelInteraction mListener;
 
     protected long baseId;
     protected DateControl startDate;
@@ -94,10 +95,10 @@ public class LeaveRecordFormFragment extends DialogFragment implements FormUpdat
     public void onAttach(Activity activity) {
         super.onAttach(activity);
         try {
-            mListener = (LeaveRecordFragmentInteractionListener) activity;
+            mListener = (ModelInteraction) activity;
         } catch (ClassCastException e) {
             throw new ClassCastException(activity.toString()
-                    + " must implement OnFragmentInteractionListener");
+                    + " must implement " + ModelInteraction.class.getCanonicalName());
         }
     }
 
@@ -236,9 +237,4 @@ public class LeaveRecordFormFragment extends DialogFragment implements FormUpdat
     @Override
     public void onFormUpdated() {
     }
-
-
-    public interface LeaveRecordFragmentInteractionListener {
-    }
-
 }

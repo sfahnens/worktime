@@ -11,6 +11,7 @@ import android.view.View;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import com.github.skyborla.worktime.ModelInteraction;
 import com.github.skyborla.worktime.R;
 import com.github.skyborla.worktime.ui.control.DateControl;
 import com.github.skyborla.worktime.ui.control.FormUpdateListener;
@@ -29,7 +30,7 @@ public abstract class WorkRecordFormFragment extends DialogFragment implements F
     protected static final String ARG_START_TIME = "startTime";
     protected static final String ARG_END_TIME = "EndTime";
 
-    protected WorkRecordFragmentInteractionListener mListener;
+    protected ModelInteraction mListener;
 
     protected long id;
 
@@ -70,10 +71,10 @@ public abstract class WorkRecordFormFragment extends DialogFragment implements F
     public void onAttach(Activity activity) {
         super.onAttach(activity);
         try {
-            mListener = (WorkRecordFragmentInteractionListener) activity;
+            mListener = (ModelInteraction) activity;
         } catch (ClassCastException e) {
             throw new ClassCastException(activity.toString()
-                    + " must implement OnFragmentInteractionListener");
+                    + " must implement " + ModelInteraction.class.getCanonicalName());
         }
     }
 
@@ -160,11 +161,5 @@ public abstract class WorkRecordFormFragment extends DialogFragment implements F
     @Override
     public void onFormUpdated() {
 
-    }
-
-    public interface WorkRecordFragmentInteractionListener {
-        void createNewRecord(LocalDate date, LocalTime startTime, LocalTime endTime);
-
-        void updateRecord(long id, LocalDate date, LocalTime startTime, LocalTime endTime);
     }
 }

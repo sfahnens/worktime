@@ -7,6 +7,7 @@ import android.view.View;
 
 import com.github.skyborla.worktime.R;
 import com.github.skyborla.worktime.Worktime;
+import com.github.skyborla.worktime.model.WorkRecord;
 
 public class NewWorkRecordFragment extends WorkRecordFormFragment {
 
@@ -43,7 +44,17 @@ public class NewWorkRecordFragment extends WorkRecordFormFragment {
                     return;
                 }
 
-                mListener.createNewRecord(date.getDate(), startTime.getTime(), endTime.getTime());
+                SharedPreferences.Editor editor = getActivity().getPreferences(Context.MODE_PRIVATE).edit();
+                editor.putBoolean(Worktime.PENDING_RECORD, false);
+                editor.commit();
+
+                WorkRecord workRecord = new WorkRecord();
+                workRecord.setDate(date.getDate());
+                workRecord.setStartTime(startTime.getTime());
+                workRecord.setEndTime(endTime.getTime());
+
+                mListener.getDatasource().persistWorkRecord(workRecord);
+                mListener.modelChanged(date.getDate());
                 dialog.dismiss();
             }
         };

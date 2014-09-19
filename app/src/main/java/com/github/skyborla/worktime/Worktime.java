@@ -20,13 +20,11 @@ import com.cocosw.undobar.UndoBarController;
 import com.github.skyborla.worktime.model.DataSource;
 import com.github.skyborla.worktime.model.WorkRecord;
 import com.github.skyborla.worktime.ui.leave.LeaveRecordFormFragment;
+import com.github.skyborla.worktime.ui.list.RecordsFragment;
 import com.github.skyborla.worktime.ui.work.EditWorkRecordFragment;
 import com.github.skyborla.worktime.ui.work.NewWorkRecordFragment;
-import com.github.skyborla.worktime.ui.list.RecordsFragment;
-import com.github.skyborla.worktime.ui.work.WorkRecordFormFragment;
 
 import org.threeten.bp.LocalDate;
-import org.threeten.bp.LocalTime;
 
 import java.io.File;
 import java.io.IOException;
@@ -34,8 +32,7 @@ import java.sql.SQLException;
 import java.util.List;
 
 
-public class Worktime extends FragmentActivity implements WorkRecordFormFragment.WorkRecordFragmentInteractionListener,
-        RecordsFragment.RecordsFragmentInteractionListener, LeaveRecordFormFragment.LeaveRecordFragmentInteractionListener {
+public class Worktime extends FragmentActivity implements RecordsFragment.RecordsFragmentInteractionListener, ModelInteraction {
 
 
     public static final String PENDING_RECORD = "PENDING_RECORD";
@@ -129,11 +126,7 @@ public class Worktime extends FragmentActivity implements WorkRecordFormFragment
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
-
 
         switch (item.getItemId()) {
             case R.id.action_new_work_record:
@@ -145,8 +138,6 @@ public class Worktime extends FragmentActivity implements WorkRecordFormFragment
                 return true;
 
             case R.id.action_send_email:
-
-
                 try {
                     File temp = File.createTempFile("asd", "bsd", getCacheDir());
 
@@ -158,58 +149,9 @@ public class Worktime extends FragmentActivity implements WorkRecordFormFragment
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
-
-
                 return true;
         }
-
         return super.onOptionsItemSelected(item);
-    }
-
-    @Override
-    public void createNewRecord(LocalDate date, LocalTime startTime, LocalTime endTime) {
-
-        SharedPreferences.Editor editor = getPreferences(Context.MODE_PRIVATE).edit();
-        editor.putBoolean(PENDING_RECORD, false);
-        editor.commit();
-
-        WorkRecord workRecord = new WorkRecord();
-        workRecord.setDate(date);
-        workRecord.setStartTime(startTime);
-        workRecord.setEndTime(endTime);
-
-        dataSource.persist(workRecord);
-        updateView(date, true);
-    }
-
-    @Override
-    public void updateRecord(long id, LocalDate date, LocalTime startTime, LocalTime endTime) {
-        WorkRecord workRecord = new WorkRecord();
-        workRecord.setId(id);
-        workRecord.setDate(date);
-        workRecord.setStartTime(startTime);
-        workRecord.setEndTime(endTime);
-
-        dataSource.update(workRecord);
-        updateView(date, true);
-    }
-
-    private void updateView(LocalDate date, boolean go) {
-        months = dataSource.getMonths();
-        mSectionsPagerAdapter.notifyDataSetChanged();
-
-        String dbFormatted = DataSource.DB_MONTH_DATE_FORMAT.format(date);
-
-        if (go) {
-            mViewPager.setCurrentItem(months.indexOf(dbFormatted));
-        }
-
-        String tag = "android:switcher:" + R.id.pager + ":" + dbFormatted;
-        RecordsFragment fragment = (RecordsFragment) getFragmentManager().findFragmentByTag(tag);
-
-        if (fragment != null) {
-            fragment.onRecordsUpdated();
-        }
     }
 
     @Override
@@ -239,15 +181,16 @@ public class Worktime extends FragmentActivity implements WorkRecordFormFragment
                 .setPositiveButton(R.string.dialog_delete_confirm, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        dataSource.delete(workRecord);
-                        updateView(workRecord.getDate(), false);
+                        dataSource.deleteWorkRecord(workRecord);
+                        modelChanged(workRecord.getDate());
 
                         new UndoBarController.UndoBar(Worktime.this)
                                 .message(R.string.undo_delete)
                                 .listener(new UndoBarController.UndoListener() {
                                     @Override
                                     public void onUndo(Parcelable parcelable) {
-                                        createNewRecord(workRecord.getDate(), workRecord.getStartTime(), workRecord.getEndTime());
+                                        dataSource.persistWorkRecord(workRecord);
+                                        modelChanged(workRecord.getDate());
                                     }
                                 })
                                 .duration(10000)
@@ -255,6 +198,29 @@ public class Worktime extends FragmentActivity implements WorkRecordFormFragment
                     }
                 })
                 .create().show();
+    }
+
+    @Override
+    public DataSource getDatasource() {
+        return dataSource;
+    }
+
+    @Override
+    public void modelChanged(LocalDate date) {
+        months = dataSource.getMonths();
+        mSectionsPagerAdapter.notifyDataSetChanged();
+
+        String dbFormatted = DataSource.DB_MONTH_DATE_FORMAT.format(date);
+
+        // TODO: evaluate this
+        mViewPager.setCurrentItem(months.indexOf(dbFormatted));
+
+        String tag = "android:switcher:" + R.id.pager + ":" + dbFormatted;
+        RecordsFragment fragment = (RecordsFragment) getFragmentManager().findFragmentByTag(tag);
+
+        if (fragment != null) {
+            fragment.onRecordsUpdated();
+        }
     }
 
     /**
@@ -269,7 +235,6 @@ public class Worktime extends FragmentActivity implements WorkRecordFormFragment
 
         @Override
         public Fragment getItem(int position) {
-            System.out.println("new " + position + " - " + months.get(position));
             return RecordsFragment.newInstance(months.get(position));
         }
 

@@ -118,7 +118,7 @@ public class RecordsFragment extends Fragment {
         int lastWeek = -1;
         List<Object> listElements = new ArrayList<Object>();
 
-        for (WorkRecord workRecord : dataSource.getRecords(month)) {
+        for (WorkRecord workRecord : dataSource.getWorkRecords(month)) {
 
             // build list
             int thisWeek = workRecord.getDate().get(WeekFields.ISO.weekOfYear());

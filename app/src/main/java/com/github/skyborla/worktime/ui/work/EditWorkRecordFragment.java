@@ -4,6 +4,7 @@ import android.os.Bundle;
 import android.view.View;
 
 import com.github.skyborla.worktime.R;
+import com.github.skyborla.worktime.model.WorkRecord;
 
 public class EditWorkRecordFragment extends WorkRecordFormFragment {
 
@@ -36,7 +37,15 @@ public class EditWorkRecordFragment extends WorkRecordFormFragment {
                     return;
                 }
 
-                mListener.updateRecord(id, date.getDate(), startTime.getTime(), endTime.getTime());
+                WorkRecord workRecord = new WorkRecord();
+                workRecord.setId(id);
+                workRecord.setDate(date.getDate());
+                workRecord.setStartTime(startTime.getTime());
+                workRecord.setEndTime(endTime.getTime());
+
+                mListener.getDatasource().updateWorkRecord(workRecord);
+                mListener.modelChanged(date.getDate());
+
                 dialog.dismiss();
             }
         };
