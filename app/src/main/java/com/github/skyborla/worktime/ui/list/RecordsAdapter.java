@@ -1,4 +1,4 @@
-package com.github.skyborla.worktime.ui;
+package com.github.skyborla.worktime.ui.list;
 
 import android.app.Activity;
 import android.content.Context;
@@ -10,7 +10,7 @@ import android.widget.TextView;
 
 import com.github.skyborla.worktime.FormatUtil;
 import com.github.skyborla.worktime.R;
-import com.github.skyborla.worktime.model.Record;
+import com.github.skyborla.worktime.model.WorkRecord;
 
 import org.threeten.bp.Duration;
 import org.threeten.bp.LocalTime;
@@ -40,7 +40,7 @@ public class RecordsAdapter extends ArrayAdapter<Object> {
             return 0;
         }
 
-        if (item instanceof Record) {
+        if (item instanceof WorkRecord) {
             return 1;
         }
 
@@ -69,8 +69,8 @@ public class RecordsAdapter extends ArrayAdapter<Object> {
             return getWeekHeaderRow(row, parent, (RecordsFragment.WeekHeader) i);
         }
 
-        if (i instanceof Record) {
-            return getRecordRow(row, parent, (Record) i);
+        if (i instanceof WorkRecord) {
+            return getRecordRow(row, parent, (WorkRecord) i);
         }
 
         throw new IllegalArgumentException();
@@ -88,7 +88,7 @@ public class RecordsAdapter extends ArrayAdapter<Object> {
         return row;
     }
 
-    private View getRecordRow(View row, ViewGroup parent, Record record) {
+    private View getRecordRow(View row, ViewGroup parent, WorkRecord workRecord) {
         RecordsFragment.RecordHolder holder;
         if (row == null) {
             LayoutInflater inflater = ((Activity) getContext()).getLayoutInflater();
@@ -104,13 +104,13 @@ public class RecordsAdapter extends ArrayAdapter<Object> {
             holder = (RecordsFragment.RecordHolder) row.getTag();
         }
 
-        holder.dateText.setText(FormatUtil.DATE_FORMAT_MEDIUM.format(record.getDate()));
+        holder.dateText.setText(FormatUtil.DATE_FORMAT_MEDIUM.format(workRecord.getDate()));
 
-        Duration duration = Duration.between(record.getStartTime(), record.getEndTime());
+        Duration duration = Duration.between(workRecord.getStartTime(), workRecord.getEndTime());
         LocalTime hackedDuration = LocalTime.of(0, 0).plus(duration);
         holder.durationText.setText("(" + FormatUtil.TIME_FORMAT.format(hackedDuration) + ")");
 
-        holder.timeText.setText(FormatUtil.formatTimes(record));
+        holder.timeText.setText(FormatUtil.formatTimes(workRecord));
 
         return row;
     }

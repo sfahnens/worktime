@@ -1,4 +1,4 @@
-package com.github.skyborla.worktime.ui;
+package com.github.skyborla.worktime.ui.list;
 
 import android.content.Context;
 import android.support.v4.view.PagerTabStrip;

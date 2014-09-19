@@ -17,12 +17,13 @@ import android.view.Menu;
 import android.view.MenuItem;
 
 import com.cocosw.undobar.UndoBarController;
-import com.github.skyborla.worktime.model.Record;
-import com.github.skyborla.worktime.model.RecordDataSource;
-import com.github.skyborla.worktime.ui.EditRecordFragment;
-import com.github.skyborla.worktime.ui.NewRecordFragment;
-import com.github.skyborla.worktime.ui.RecordFormFragment;
-import com.github.skyborla.worktime.ui.RecordsFragment;
+import com.github.skyborla.worktime.model.DataSource;
+import com.github.skyborla.worktime.model.WorkRecord;
+import com.github.skyborla.worktime.ui.leave.LeaveRecordFormFragment;
+import com.github.skyborla.worktime.ui.work.EditWorkRecordFragment;
+import com.github.skyborla.worktime.ui.work.NewWorkRecordFragment;
+import com.github.skyborla.worktime.ui.list.RecordsFragment;
+import com.github.skyborla.worktime.ui.work.WorkRecordFormFragment;
 
 import org.threeten.bp.LocalDate;
 import org.threeten.bp.LocalTime;
@@ -33,14 +34,16 @@ import java.sql.SQLException;
 import java.util.List;
 
 
-public class Worktime extends FragmentActivity implements RecordFormFragment.RecordFormFragmentInteractionListener, RecordsFragment.RecordsFragmentInteractionListener {
+public class Worktime extends FragmentActivity implements WorkRecordFormFragment.WorkRecordFragmentInteractionListener,
+        RecordsFragment.RecordsFragmentInteractionListener, LeaveRecordFormFragment.LeaveRecordFragmentInteractionListener {
+
 
     public static final String PENDING_RECORD = "PENDING_RECORD";
     public static final String PENDING_DATE = "PENDING_DATE";
     public static final String PENDING_START_TIME = "PENDING_START_TIME";
     public static final String PENDING_END_TIME = "PENDING_END_TIME";
 
-    private RecordDataSource dataSource;
+    private DataSource dataSource;
 
     /**
      * The {@link android.support.v4.view.PagerAdapter} that will provide
@@ -63,17 +66,19 @@ public class Worktime extends FragmentActivity implements RecordFormFragment.Rec
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_worktime);
 
+        LeaveRecordFormFragment.newInstance(null, null).show(getSupportFragmentManager(), "newLeaveRecord");
+
         SharedPreferences pref = getPreferences(Context.MODE_PRIVATE);
 
         if (pref.getBoolean(PENDING_RECORD, false)) {
-            NewRecordFragment.newInstance(
+            NewWorkRecordFragment.newInstance(
                     pref.getString(PENDING_DATE, ""),
                     pref.getString(PENDING_START_TIME, ""),
-                    pref.getString(PENDING_END_TIME, "")).show(getSupportFragmentManager(), "newRecord");
+                    pref.getString(PENDING_END_TIME, "")).show(getSupportFragmentManager(), "newWorkRecord");
         }
 
 
-        dataSource = new RecordDataSource(this);
+        dataSource = new DataSource(this);
         try {
             dataSource.open();
         } catch (SQLException e) {
@@ -91,7 +96,7 @@ public class Worktime extends FragmentActivity implements RecordFormFragment.Rec
         mViewPager = (ViewPager) findViewById(R.id.pager);
         mViewPager.setAdapter(mSectionsPagerAdapter);
 
-        String now = RecordDataSource.DB_MONTH_DATE_FORMAT.format(LocalDate.now());
+        String now = DataSource.DB_MONTH_DATE_FORMAT.format(LocalDate.now());
         if (months.contains(now)) {
             mViewPager.setCurrentItem(months.indexOf(now));
         } else if (months.size() > 0) {
@@ -131,9 +136,14 @@ public class Worktime extends FragmentActivity implements RecordFormFragment.Rec
 
 
         switch (item.getItemId()) {
-            case R.id.action_new_record:
-                NewRecordFragment.newInstance().show(getSupportFragmentManager(), "newRecord");
+            case R.id.action_new_work_record:
+                NewWorkRecordFragment.newInstance().show(getSupportFragmentManager(), "newWorkRecord");
                 return true;
+
+            case R.id.action_new_leave_record:
+                LeaveRecordFormFragment.newInstance(null, null).show(getSupportFragmentManager(), "newLeaveRecord");
+                return true;
+
             case R.id.action_send_email:
 
 
@@ -163,24 +173,24 @@ public class Worktime extends FragmentActivity implements RecordFormFragment.Rec
         editor.putBoolean(PENDING_RECORD, false);
         editor.commit();
 
-        Record record = new Record();
-        record.setDate(date);
-        record.setStartTime(startTime);
-        record.setEndTime(endTime);
+        WorkRecord workRecord = new WorkRecord();
+        workRecord.setDate(date);
+        workRecord.setStartTime(startTime);
+        workRecord.setEndTime(endTime);
 
-        dataSource.persist(record);
+        dataSource.persist(workRecord);
         updateView(date, true);
     }
 
     @Override
     public void updateRecord(long id, LocalDate date, LocalTime startTime, LocalTime endTime) {
-        Record record = new Record();
-        record.setId(id);
-        record.setDate(date);
-        record.setStartTime(startTime);
-        record.setEndTime(endTime);
+        WorkRecord workRecord = new WorkRecord();
+        workRecord.setId(id);
+        workRecord.setDate(date);
+        workRecord.setStartTime(startTime);
+        workRecord.setEndTime(endTime);
 
-        dataSource.update(record);
+        dataSource.update(workRecord);
         updateView(date, true);
     }
 
@@ -188,7 +198,7 @@ public class Worktime extends FragmentActivity implements RecordFormFragment.Rec
         months = dataSource.getMonths();
         mSectionsPagerAdapter.notifyDataSetChanged();
 
-        String dbFormatted = RecordDataSource.DB_MONTH_DATE_FORMAT.format(date);
+        String dbFormatted = DataSource.DB_MONTH_DATE_FORMAT.format(date);
 
         if (go) {
             mViewPager.setCurrentItem(months.indexOf(dbFormatted));
@@ -203,20 +213,20 @@ public class Worktime extends FragmentActivity implements RecordFormFragment.Rec
     }
 
     @Override
-    public void requestEdit(Record record) {
-        EditRecordFragment
-                .newInstance(record.getId(),
-                        record.getDate().toString(),
-                        record.getStartTime().toString(),
-                        record.getEndTime().toString())
+    public void requestEdit(WorkRecord workRecord) {
+        EditWorkRecordFragment
+                .newInstance(workRecord.getId(),
+                        workRecord.getDate().toString(),
+                        workRecord.getStartTime().toString(),
+                        workRecord.getEndTime().toString())
                 .show(getSupportFragmentManager(), "editRecord");
     }
 
     @Override
-    public void requestDelete(final Record record) {
+    public void requestDelete(final WorkRecord workRecord) {
 
-        String message = "\n \u2022 " + FormatUtil.DATE_FORMAT_MEDIUM.format(record.getDate());
-        message += " (" + FormatUtil.formatTimes(record) + ")\n";
+        String message = "\n \u2022 " + FormatUtil.DATE_FORMAT_MEDIUM.format(workRecord.getDate());
+        message += " (" + FormatUtil.formatTimes(workRecord) + ")\n";
 
         new AlertDialog.Builder(this)
                 .setTitle(R.string.dialog_confirm_delete_header)
@@ -229,15 +239,15 @@ public class Worktime extends FragmentActivity implements RecordFormFragment.Rec
                 .setPositiveButton(R.string.dialog_delete_confirm, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        dataSource.delete(record);
-                        updateView(record.getDate(), false);
+                        dataSource.delete(workRecord);
+                        updateView(workRecord.getDate(), false);
 
                         new UndoBarController.UndoBar(Worktime.this)
                                 .message(R.string.undo_delete)
                                 .listener(new UndoBarController.UndoListener() {
                                     @Override
                                     public void onUndo(Parcelable parcelable) {
-                                        createNewRecord(record.getDate(), record.getStartTime(), record.getEndTime());
+                                        createNewRecord(workRecord.getDate(), workRecord.getStartTime(), workRecord.getEndTime());
                                     }
                                 })
                                 .duration(10000)

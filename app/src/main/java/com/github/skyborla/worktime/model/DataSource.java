@@ -17,14 +17,14 @@ import java.util.List;
 /**
  * Created by Sebastian on 12.09.2014.
  */
-public class RecordDataSource {
+public class DataSource {
 
     private SQLiteDatabase database;
     private WorktimeSQLiteHelper dbHelper;
 
     public static final DateTimeFormatter DB_MONTH_DATE_FORMAT = DateTimeFormatter.ofPattern("YYYYMM");
 
-    public RecordDataSource(Context context) {
+    public DataSource(Context context) {
         dbHelper = new WorktimeSQLiteHelper(context);
     }
 
@@ -36,9 +36,9 @@ public class RecordDataSource {
         dbHelper.close();
     }
 
-    public Record persist(Record record) {
+    public WorkRecord persist(WorkRecord workRecord) {
 
-        ContentValues values = recordToContentValues(record);
+        ContentValues values = recordToContentValues(workRecord);
 
         long id = database.insert(WorktimeSQLiteHelper.TABLE_WORKTIME_RECORDS, null, values);
 
@@ -48,34 +48,34 @@ public class RecordDataSource {
                 null, null, null, null);
 
         cursor.moveToFirst();
-        Record newRecord = cursorToRecord(cursor);
+        WorkRecord newWorkRecord = cursorToRecord(cursor);
         cursor.close();
 
-        return newRecord;
+        return newWorkRecord;
     }
 
-    private ContentValues recordToContentValues(Record record) {
+    private ContentValues recordToContentValues(WorkRecord workRecord) {
         ContentValues values = new ContentValues();
 
-        if (record.getDate() != null) {
-            values.put(WorktimeSQLiteHelper.COL_DATE, record.getDate().toString());
-            values.put(WorktimeSQLiteHelper.COL_MONTH, DB_MONTH_DATE_FORMAT.format(record.getDate()));
+        if (workRecord.getDate() != null) {
+            values.put(WorktimeSQLiteHelper.COL_DATE, workRecord.getDate().toString());
+            values.put(WorktimeSQLiteHelper.COL_MONTH, DB_MONTH_DATE_FORMAT.format(workRecord.getDate()));
         }
 
-        if (record.getStartTime() != null) {
+        if (workRecord.getStartTime() != null) {
             values.put(WorktimeSQLiteHelper.COL_START_TIME,
-                    record.getStartTime().truncatedTo(ChronoUnit.MINUTES).toString());
+                    workRecord.getStartTime().truncatedTo(ChronoUnit.MINUTES).toString());
         }
 
-        if (record.getEndTime() != null) {
+        if (workRecord.getEndTime() != null) {
             values.put(WorktimeSQLiteHelper.COL_END_TIME,
-                    record.getEndTime().truncatedTo(ChronoUnit.MINUTES).toString());
+                    workRecord.getEndTime().truncatedTo(ChronoUnit.MINUTES).toString());
         }
         return values;
     }
 
-    public List<Record> getAllRecords() {
-        List<Record> records = new ArrayList<Record>();
+    public List<WorkRecord> getAllRecords() {
+        List<WorkRecord> workRecords = new ArrayList<WorkRecord>();
 
         Cursor cursor = database.query(WorktimeSQLiteHelper.TABLE_WORKTIME_RECORDS,
                 WorktimeSQLiteHelper.RECORD_COLUMNS,
@@ -83,12 +83,12 @@ public class RecordDataSource {
 
         cursor.moveToFirst();
         while (!cursor.isAfterLast()) {
-            records.add(cursorToRecord(cursor));
+            workRecords.add(cursorToRecord(cursor));
             cursor.moveToNext();
         }
 
         cursor.close();
-        return records;
+        return workRecords;
     }
 
 
@@ -110,8 +110,8 @@ public class RecordDataSource {
         return months;
     }
 
-    public List<Record> getRecords(String month) {
-        List<Record> records = new ArrayList<Record>();
+    public List<WorkRecord> getRecords(String month) {
+        List<WorkRecord> workRecords = new ArrayList<WorkRecord>();
 
         Cursor cursor = database.query(WorktimeSQLiteHelper.TABLE_WORKTIME_RECORDS,
                 WorktimeSQLiteHelper.RECORD_COLUMNS,
@@ -122,35 +122,35 @@ public class RecordDataSource {
 
         cursor.moveToFirst();
         while (!cursor.isAfterLast()) {
-            records.add(cursorToRecord(cursor));
+            workRecords.add(cursorToRecord(cursor));
             cursor.moveToNext();
         }
 
         cursor.close();
-        return records;
+        return workRecords;
     }
 
-    private Record cursorToRecord(Cursor cursor) {
+    private WorkRecord cursorToRecord(Cursor cursor) {
 
-        Record record = new Record();
-        record.setId(cursor.getLong(0));
-        record.setDate(LocalDate.parse(cursor.getString(1)));
-        record.setStartTime(LocalTime.parse(cursor.getString(2)));
-        record.setEndTime(LocalTime.parse(cursor.getString(3)));
+        WorkRecord workRecord = new WorkRecord();
+        workRecord.setId(cursor.getLong(0));
+        workRecord.setDate(LocalDate.parse(cursor.getString(1)));
+        workRecord.setStartTime(LocalTime.parse(cursor.getString(2)));
+        workRecord.setEndTime(LocalTime.parse(cursor.getString(3)));
 
-        return record;
+        return workRecord;
     }
 
-    public void delete(Record record) {
+    public void delete(WorkRecord workRecord) {
         database.delete(WorktimeSQLiteHelper.TABLE_WORKTIME_RECORDS,
-                WorktimeSQLiteHelper.COL_ID + " = " + record.getId(), null);
+                WorktimeSQLiteHelper.COL_ID + " = " + workRecord.getId(), null);
     }
 
-    public void update(Record record) {
+    public void update(WorkRecord workRecord) {
 
         database.update(WorktimeSQLiteHelper.TABLE_WORKTIME_RECORDS,
-                recordToContentValues(record),
-                WorktimeSQLiteHelper.COL_ID + " = " + record.getId(), null);
+                recordToContentValues(workRecord),
+                WorktimeSQLiteHelper.COL_ID + " = " + workRecord.getId(), null);
 
     }
 }

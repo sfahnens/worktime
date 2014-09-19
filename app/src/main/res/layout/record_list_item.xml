@@ -10,7 +10,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/record_list_date"
-        android:textSize="20sp"
+        android:textSize="18sp"
         android:layout_weight="0.5" />
 
 
@@ -19,7 +19,7 @@
         android:layout_height="wrap_content"
         android:id="@+id/record_list_time"
         android:layout_weight="0.5"
-        android:textSize="20sp"
+        android:textSize="18sp"
         android:gravity="right" />
 
     <TextView
@@ -28,7 +28,7 @@
         android:id="@+id/record_list_duration"
         android:paddingStart="16dp"
         android:textColor="@android:color/holo_blue_dark"
-        android:textSize="18sp"
+        android:textSize="17sp"
         android:textStyle="bold"
         android:gravity="right"/>
 </LinearLayout>

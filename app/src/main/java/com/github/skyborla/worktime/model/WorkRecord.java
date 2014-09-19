@@ -8,7 +8,7 @@ import java.io.Serializable;
 /**
  * Created by Sebastian on 12.09.2014.
  */
-public class Record implements Serializable {
+public class WorkRecord implements Serializable {
 
 
 
@@ -18,10 +18,10 @@ public class Record implements Serializable {
     private LocalTime startTime;
     private LocalTime endTime;
 
-    public Record() {
+    public WorkRecord() {
     }
 
-    public Record(LocalDate date, LocalTime startTime, LocalTime endTime) {
+    public WorkRecord(LocalDate date, LocalTime startTime, LocalTime endTime) {
         this.date = date;
         this.startTime = startTime;
         this.endTime = endTime;
@@ -69,13 +69,13 @@ public class Record implements Serializable {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
-        Record record = (Record) o;
+        WorkRecord workRecord = (WorkRecord) o;
 
-        if (date != null ? !date.equals(record.date) : record.date != null) return false;
-        if (endTime != null ? !endTime.equals(record.endTime) : record.endTime != null)
+        if (date != null ? !date.equals(workRecord.date) : workRecord.date != null) return false;
+        if (endTime != null ? !endTime.equals(workRecord.endTime) : workRecord.endTime != null)
             return false;
-        if (id != null ? !id.equals(record.id) : record.id != null) return false;
-        if (startTime != null ? !startTime.equals(record.startTime) : record.startTime != null)
+        if (id != null ? !id.equals(workRecord.id) : workRecord.id != null) return false;
+        if (startTime != null ? !startTime.equals(workRecord.startTime) : workRecord.startTime != null)
             return false;
 
         return true;

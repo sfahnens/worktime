@@ -1,4 +1,4 @@
-package com.github.skyborla.worktime.ui;
+package com.github.skyborla.worktime.ui.list;
 
 import android.app.Activity;
 import android.app.Fragment;
@@ -15,8 +15,8 @@ import android.widget.TextView;
 
 import com.github.skyborla.worktime.FormatUtil;
 import com.github.skyborla.worktime.R;
-import com.github.skyborla.worktime.model.Record;
-import com.github.skyborla.worktime.model.RecordDataSource;
+import com.github.skyborla.worktime.model.DataSource;
+import com.github.skyborla.worktime.model.WorkRecord;
 
 import org.threeten.bp.Duration;
 import org.threeten.bp.LocalDate;
@@ -32,7 +32,7 @@ import java.util.Set;
 /**
  * A simple {@link Fragment} subclass.
  * Activities that contain this fragment must implement the
- * {@link com.github.skyborla.worktime.ui.RecordsFragment.RecordsFragmentInteractionListener} interface
+ * {@link RecordsFragment.RecordsFragmentInteractionListener} interface
  * to handle interaction events.
  * Use the {@link RecordsFragment#newInstance} factory method to
  * create an instance of this fragment.
@@ -44,7 +44,7 @@ public class RecordsFragment extends Fragment {
     private ListView recordsList;
     private TextView summary;
 
-    private RecordDataSource dataSource;
+    private DataSource dataSource;
 
     private RecordsFragmentInteractionListener mListener;
     private ArrayAdapter<Object> adapter;
@@ -68,7 +68,7 @@ public class RecordsFragment extends Fragment {
             month = getArguments().getString(ARG_MONTH);
         }
 
-        dataSource = new RecordDataSource(getActivity());
+        dataSource = new DataSource(getActivity());
 
         try {
             dataSource.open();
@@ -118,10 +118,10 @@ public class RecordsFragment extends Fragment {
         int lastWeek = -1;
         List<Object> listElements = new ArrayList<Object>();
 
-        for (Record record : dataSource.getRecords(month)) {
+        for (WorkRecord workRecord : dataSource.getRecords(month)) {
 
             // build list
-            int thisWeek = record.getDate().get(WeekFields.ISO.weekOfYear());
+            int thisWeek = workRecord.getDate().get(WeekFields.ISO.weekOfYear());
 
             if (thisWeek != lastWeek) {
                 WeekHeader header = new WeekHeader();
@@ -131,11 +131,11 @@ public class RecordsFragment extends Fragment {
                 lastWeek = thisWeek;
             }
 
-            listElements.add(record);
+            listElements.add(workRecord);
 
             // build summary
-            workedDays.add(record.getDate());
-            Duration worktime = Duration.between(record.getStartTime(), record.getEndTime());
+            workedDays.add(workRecord.getDate());
+            Duration worktime = Duration.between(workRecord.getStartTime(), workRecord.getEndTime());
 
             totalWorktime = totalWorktime.plus(worktime);
         }
@@ -185,13 +185,13 @@ public class RecordsFragment extends Fragment {
         AdapterView.AdapterContextMenuInfo adapterInfo = (AdapterView.AdapterContextMenuInfo) menuInfo;
         Object item = adapter.getItem(adapterInfo.position);
 
-        if (!(item instanceof Record)) {
+        if (!(item instanceof WorkRecord)) {
             return;
         }
-        Record record = (Record) item;
+        WorkRecord workRecord = (WorkRecord) item;
 
-        String header = FormatUtil.DATE_FORMAT_SHORT.format(record.getDate());
-        header += " (" + FormatUtil.formatTimes(record) + ")";
+        String header = FormatUtil.DATE_FORMAT_SHORT.format(workRecord.getDate());
+        header += " (" + FormatUtil.formatTimes(workRecord) + ")";
 
         menu.setHeaderTitle(header);
         menu.setHeaderIcon(R.drawable.ic_launcher);
@@ -202,9 +202,9 @@ public class RecordsFragment extends Fragment {
     @Override
     public boolean onContextItemSelected(MenuItem item) {
         AdapterView.AdapterContextMenuInfo adapterInfo = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
-        Record record;
+        WorkRecord workRecord;
         try {
-            record = (Record) adapter.getItem(adapterInfo.position);
+            workRecord = (WorkRecord) adapter.getItem(adapterInfo.position);
         }catch (IndexOutOfBoundsException e) {
             e.printStackTrace();
             return false;
@@ -212,10 +212,10 @@ public class RecordsFragment extends Fragment {
 
         switch (item.getItemId()) {
             case R.id.records_context_edit:
-                mListener.requestEdit(record);
+                mListener.requestEdit(workRecord);
                 break;
             case R.id.records_context_delete:
-                mListener.requestDelete(record);
+                mListener.requestDelete(workRecord);
                 break;
         }
 
@@ -223,9 +223,9 @@ public class RecordsFragment extends Fragment {
     }
 
     public interface RecordsFragmentInteractionListener {
-        void requestEdit(Record record);
+        void requestEdit(WorkRecord workRecord);
 
-        void requestDelete(Record record);
+        void requestDelete(WorkRecord workRecord);
     }
 
     public static class RecordHolder {

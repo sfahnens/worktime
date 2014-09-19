@@ -1,4 +1,4 @@
-package com.github.skyborla.worktime.ui;
+package com.github.skyborla.worktime.ui.work;
 
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -8,14 +8,14 @@ import android.view.View;
 import com.github.skyborla.worktime.R;
 import com.github.skyborla.worktime.Worktime;
 
-public class NewRecordFragment extends RecordFormFragment {
+public class NewWorkRecordFragment extends WorkRecordFormFragment {
 
-    public static NewRecordFragment newInstance() {
-        return new NewRecordFragment();
+    public static NewWorkRecordFragment newInstance() {
+        return new NewWorkRecordFragment();
     }
 
-    public static NewRecordFragment newInstance(String date, String startTime, String endTime) {
-        NewRecordFragment fragment = new NewRecordFragment();
+    public static NewWorkRecordFragment newInstance(String date, String startTime, String endTime) {
+        NewWorkRecordFragment fragment = new NewWorkRecordFragment();
         Bundle args = new Bundle();
         args.putString(ARG_DATE, date);
         args.putString(ARG_START_TIME, startTime);
@@ -24,7 +24,7 @@ public class NewRecordFragment extends RecordFormFragment {
         return fragment;
     }
 
-    public NewRecordFragment() {
+    public NewWorkRecordFragment() {
         // Required empty public constructor
     }
 
@@ -43,7 +43,7 @@ public class NewRecordFragment extends RecordFormFragment {
                     return;
                 }
 
-                mListener.createNewRecord(date, startTime, endTime);
+                mListener.createNewRecord(date.getDate(), startTime.getTime(), endTime.getTime());
                 dialog.dismiss();
             }
         };
@@ -63,9 +63,7 @@ public class NewRecordFragment extends RecordFormFragment {
     }
 
     @Override
-    protected void onStateUpdated() {
-        super.onStateUpdated();
-
+    public void onFormUpdated() {
         SharedPreferences.Editor editor = getActivity().getPreferences(Context.MODE_PRIVATE).edit();
         editor.putBoolean(Worktime.PENDING_RECORD, true);
 
@@ -78,6 +76,6 @@ public class NewRecordFragment extends RecordFormFragment {
 
     @Override
     protected int getTitle() {
-        return R.string.action_new_record;
+        return R.string.action_new_work_record;
     }
 }

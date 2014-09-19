@@ -1,14 +1,14 @@
-package com.github.skyborla.worktime.ui;
+package com.github.skyborla.worktime.ui.work;
 
 import android.os.Bundle;
 import android.view.View;
 
 import com.github.skyborla.worktime.R;
 
-public class EditRecordFragment extends RecordFormFragment {
+public class EditWorkRecordFragment extends WorkRecordFormFragment {
 
-    public static EditRecordFragment newInstance(long id, String date, String startTime, String endTime) {
-        EditRecordFragment fragment = new EditRecordFragment();
+    public static EditWorkRecordFragment newInstance(long id, String date, String startTime, String endTime) {
+        EditWorkRecordFragment fragment = new EditWorkRecordFragment();
         Bundle args = new Bundle();
         args.putLong(ARG_ID, id);
         args.putString(ARG_DATE, date);
@@ -18,7 +18,7 @@ public class EditRecordFragment extends RecordFormFragment {
         return fragment;
     }
 
-    public EditRecordFragment() {
+    public EditWorkRecordFragment() {
         // Required empty public constructor
     }
 
@@ -36,7 +36,7 @@ public class EditRecordFragment extends RecordFormFragment {
                     return;
                 }
 
-                mListener.updateRecord(id, date, startTime, endTime);
+                mListener.updateRecord(id, date.getDate(), startTime.getTime(), endTime.getTime());
                 dialog.dismiss();
             }
         };
