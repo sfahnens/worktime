@@ -17,6 +17,8 @@ public final class FormatUtil {
     public final static DateTimeFormatter DATE_FORMAT_SHORT = DateTimeFormatter.ofPattern("dd. MM.");
     public final static DateTimeFormatter DATE_FORMAT_MONTH = DateTimeFormatter.ofPattern("MMMYY");
 
+    public final static DateTimeFormatter DATE_FORMAT_DB_MONTH = DateTimeFormatter.ofPattern("YYYYMM");
+
     public final static DateTimeFormatter TIME_FORMAT = DateTimeFormatter.ofPattern("HH:mm");
 
     public static String formatTimes(WorkRecord workRecord) {

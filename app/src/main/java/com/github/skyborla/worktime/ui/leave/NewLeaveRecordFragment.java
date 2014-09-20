@@ -49,7 +49,7 @@ public class NewLeaveRecordFragment extends LeaveRecordFormFragment {
                     return;
                 }
 
-                mListener.modelChanged(affectedMonths.toArray(new LocalDate[0]));
+                mListener.modelChanged(affectedMonths);
                 dismiss();
 
                 // XXX

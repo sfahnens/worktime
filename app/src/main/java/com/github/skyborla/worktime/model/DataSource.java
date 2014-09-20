@@ -14,6 +14,8 @@ import org.threeten.bp.format.DateTimeFormatter;
 import org.threeten.bp.temporal.ChronoUnit;
 
 import java.sql.SQLException;
+import java.text.Format;
+import java.text.Normalizer;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
@@ -29,8 +31,6 @@ public class DataSource {
     private SQLiteDatabase database;
     private DB dbHelper;
 
-    public static final DateTimeFormatter DB_MONTH_DATE_FORMAT = DateTimeFormatter.ofPattern("YYYYMM");
-
     public DataSource(Context context) {
         dbHelper = new DB(context);
     }
@@ -43,9 +43,9 @@ public class DataSource {
         dbHelper.close();
     }
 
-    public List<String> getMonths() {
+    public List<LocalDate> getMonths() {
 
-        Set<String> months = new TreeSet<String>();
+        Set<LocalDate> months = new TreeSet<LocalDate>();
 
         String workTable = DB.TABLE_WORK_RECORDS;
         String[] columns = new String[]{DB.COL_MONTH};
@@ -55,7 +55,7 @@ public class DataSource {
 
         workCursor.moveToFirst();
         while (!workCursor.isAfterLast()) {
-            months.add(workCursor.getString(0));
+            months.add(FormatUtil.parseDBMonthFormat(workCursor.getString(0)));
             workCursor.moveToNext();
         }
         workCursor.close();
@@ -65,12 +65,12 @@ public class DataSource {
 
         leaveCursor.moveToFirst();
         while (!leaveCursor.isAfterLast()) {
-            months.add(leaveCursor.getString(0));
+            months.add(FormatUtil.parseDBMonthFormat(leaveCursor.getString(0)));
             leaveCursor.moveToNext();
         }
         leaveCursor.close();
 
-        return new ArrayList<String>(months);
+        return new ArrayList<LocalDate>(months);
     }
 
     public LocalDate persistWorkRecord(WorkRecord workRecord) {
@@ -147,7 +147,7 @@ public class DataSource {
         ContentValues values = new ContentValues();
 
         values.put(DB.COL_DATE, workRecord.getDate().toString());
-        values.put(DB.COL_MONTH, DB_MONTH_DATE_FORMAT.format(workRecord.getDate()));
+        values.put(DB.COL_MONTH, FormatUtil.DATE_FORMAT_DB_MONTH.format(workRecord.getDate()));
 
         values.put(DB.COL_START_TIME,
                 workRecord.getStartTime().truncatedTo(ChronoUnit.MINUTES).toString());
@@ -310,7 +310,7 @@ public class DataSource {
         }
 
         values.put(DB.COL_DATE, leaveRecord.getDate().toString());
-        values.put(DB.COL_MONTH, DB_MONTH_DATE_FORMAT.format(leaveRecord.getDate()));
+        values.put(DB.COL_MONTH, FormatUtil.DATE_FORMAT_DB_MONTH.format(leaveRecord.getDate()));
 
         values.put(DB.COL_REASON, leaveRecord.getReason().toString());
         values.put(DB.COL_WORKDAYS, leaveRecord.getWorkdays() ? 1 : 0);

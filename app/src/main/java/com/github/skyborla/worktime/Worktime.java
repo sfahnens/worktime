@@ -31,6 +31,7 @@ import org.threeten.bp.LocalDate;
 import java.io.File;
 import java.io.IOException;
 import java.sql.SQLException;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -59,7 +60,7 @@ public class Worktime extends FragmentActivity implements RecordsFragment.Record
      * The {@link ViewPager} that will host the section contents.
      */
     ViewPager mViewPager;
-    private List<String> months;
+    private List<LocalDate> months;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -96,7 +97,7 @@ public class Worktime extends FragmentActivity implements RecordsFragment.Record
         mViewPager = (ViewPager) findViewById(R.id.pager);
         mViewPager.setAdapter(mSectionsPagerAdapter);
 
-        String now = DataSource.DB_MONTH_DATE_FORMAT.format(LocalDate.now());
+        LocalDate now = LocalDate.now().withDayOfMonth(1);
         if (months.contains(now)) {
             mViewPager.setCurrentItem(months.indexOf(now));
         } else if (months.size() > 0) {
@@ -122,7 +123,6 @@ public class Worktime extends FragmentActivity implements RecordsFragment.Record
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.global, menu);
         return true;
     }
@@ -257,24 +257,61 @@ public class Worktime extends FragmentActivity implements RecordsFragment.Record
     @Override
     public void modelChanged(Set<LocalDate> changed) {
 
+        LocalDate currentMonth = null;
+        try {
+            currentMonth = months.get(mViewPager.getCurrentItem());
+        } catch (Throwable t) {
+        }
+
+        months = dataSource.getMonths();
+        mSectionsPagerAdapter.notifyDataSetChanged();
+
+        // propagate update to pages
+        for (LocalDate date : changed) {
+            String tag = "android:switcher:" + R.id.pager + ":" + date.hashCode();
+            RecordsFragment fragment = (RecordsFragment) getFragmentManager().findFragmentByTag(tag);
+
+            if (fragment != null) {
+                fragment.onRecordsUpdated();
+            }
+        }
+
+        // determine if we need to change the page
+        Set<LocalDate> displayCandidates = new HashSet<LocalDate>();
+        displayCandidates.addAll(changed);
+        displayCandidates.retainAll(months);
+
+        LocalDate firstDisplayCandidate = displayCandidates.iterator().next();
+
+        // current month changed -> do nothing
+        if (displayCandidates.contains(currentMonth)) {
+            return;
+        }
+
+        // try to go to a visible changed page
+        else if (firstDisplayCandidate != null) {
+            mViewPager.setCurrentItem(months.indexOf(firstDisplayCandidate));
+        }
+
+        // ensure valid page (unrelated to change)
+        else {
+            LocalDate thisMonth = LocalDate.now().withDayOfMonth(1);
+
+            if (currentMonth != null && months.contains(currentMonth)) {
+                return;
+            } else if (months.contains(thisMonth)) {
+                mViewPager.setCurrentItem(months.indexOf(thisMonth));
+            } else {
+                mViewPager.setCurrentItem(0);
+            }
+        }
     }
 
     @Override
     public void modelChanged(LocalDate date) {
-        months = dataSource.getMonths();
-        mSectionsPagerAdapter.notifyDataSetChanged();
-
-        String dbFormatted = DataSource.DB_MONTH_DATE_FORMAT.format(date);
-
-        // TODO: evaluate this
-        mViewPager.setCurrentItem(months.indexOf(dbFormatted));
-
-        String tag = "android:switcher:" + R.id.pager + ":" + dbFormatted;
-        RecordsFragment fragment = (RecordsFragment) getFragmentManager().findFragmentByTag(tag);
-
-        if (fragment != null) {
-            fragment.onRecordsUpdated();
-        }
+        Set<LocalDate> affectedMonth = new HashSet<LocalDate>();
+        affectedMonth.add(date);
+        modelChanged(affectedMonth);
     }
 
     /**
@@ -299,8 +336,8 @@ public class Worktime extends FragmentActivity implements RecordsFragment.Record
 
         @Override
         public long getItemId(int position) {
-            String month = months.get(position);
-            return Long.valueOf(month);
+            LocalDate month = months.get(position);
+            return Long.valueOf(FormatUtil.DATE_FORMAT_DB_MONTH.format(month));
         }
 
         @Override
@@ -310,14 +347,8 @@ public class Worktime extends FragmentActivity implements RecordsFragment.Record
 
         @Override
         public CharSequence getPageTitle(int position) {
-            String dbFormatted = months.get(position);
-
-            if (dbFormatted.length() == 6) {
-                LocalDate date = FormatUtil.parseDBMonthFormat(dbFormatted);
-                return FormatUtil.DATE_FORMAT_MONTH.format(date).toUpperCase();
-            }
-
-            return "-";
+            LocalDate date = months.get(position);
+            return FormatUtil.DATE_FORMAT_MONTH.format(date).toUpperCase();
         }
     }
 }

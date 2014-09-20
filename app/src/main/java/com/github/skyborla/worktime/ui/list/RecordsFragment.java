@@ -14,10 +14,13 @@ import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import com.github.skyborla.worktime.FormatUtil;
 import com.github.skyborla.worktime.R;
 import com.github.skyborla.worktime.model.DataSource;
 import com.github.skyborla.worktime.model.LeaveRecord;
 import com.github.skyborla.worktime.model.WorkRecord;
+
+import org.threeten.bp.LocalDate;
 
 import java.sql.SQLException;
 import java.util.List;
@@ -34,10 +37,10 @@ public class RecordsFragment extends Fragment {
     private RecordsFragmentInteractionListener mListener;
     private ArrayAdapter<ListViewItem> adapter;
 
-    public static RecordsFragment newInstance(String month) {
+    public static RecordsFragment newInstance(LocalDate month) {
         RecordsFragment fragment = new RecordsFragment();
         Bundle args = new Bundle();
-        args.putString(ARG_MONTH, month);
+        args.putString(ARG_MONTH, FormatUtil.DATE_FORMAT_DB_MONTH.format(month));
         fragment.setArguments(args);
         return fragment;
     }
@@ -142,12 +145,20 @@ public class RecordsFragment extends Fragment {
 
     @Override
     public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
+        System.out.println(month);
         AdapterView.AdapterContextMenuInfo adapterInfo = (AdapterView.AdapterContextMenuInfo) menuInfo;
         adapter.getItem(adapterInfo.position).onCreateContextMenu(getActivity(), menu);
     }
 
     @Override
     public boolean onContextItemSelected(MenuItem item) {
+
+        // filter for correct target list !!
+        // see http://stackoverflow.com/a/10162443
+        if (!getUserVisibleHint()) {
+            return false;
+        }
+
         AdapterView.AdapterContextMenuInfo adapterInfo = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
         return adapter.getItem(adapterInfo.position).onContextItemSelected(item, mListener);
     }
