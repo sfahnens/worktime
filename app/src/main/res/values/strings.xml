@@ -38,6 +38,7 @@
     <string name="undo_delete">Gelöscht</string>
     <string name="undo">Rückgängig</string>
     <string name="validate_end_before_start">Das Enddatum darf nicht vor dem Startdatum liegen.</string>
+    <string name="all_days_on_weekend">Fehler beim Speichern: Sind alle Tage am Wochenende?</string>
 
 
 </resources>

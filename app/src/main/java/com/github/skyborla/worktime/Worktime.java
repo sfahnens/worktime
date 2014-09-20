@@ -20,6 +20,7 @@ import com.cocosw.undobar.UndoBarController;
 import com.github.skyborla.worktime.model.DataSource;
 import com.github.skyborla.worktime.model.WorkRecord;
 import com.github.skyborla.worktime.ui.leave.LeaveRecordFormFragment;
+import com.github.skyborla.worktime.ui.leave.NewLeaveRecordFragment;
 import com.github.skyborla.worktime.ui.list.RecordsFragment;
 import com.github.skyborla.worktime.ui.work.EditWorkRecordFragment;
 import com.github.skyborla.worktime.ui.work.NewWorkRecordFragment;
@@ -63,7 +64,7 @@ public class Worktime extends FragmentActivity implements RecordsFragment.Record
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_worktime);
 
-        LeaveRecordFormFragment.newInstance(null, null).show(getSupportFragmentManager(), "newLeaveRecord");
+        NewLeaveRecordFragment.newInstance().show(getSupportFragmentManager(), "newLeaveRecord");
 
         SharedPreferences pref = getPreferences(Context.MODE_PRIVATE);
 
@@ -134,7 +135,7 @@ public class Worktime extends FragmentActivity implements RecordsFragment.Record
                 return true;
 
             case R.id.action_new_leave_record:
-                LeaveRecordFormFragment.newInstance(null, null).show(getSupportFragmentManager(), "newLeaveRecord");
+                NewLeaveRecordFragment.newInstance().show(getSupportFragmentManager(), "newLeaveRecord");
                 return true;
 
             case R.id.action_send_email:

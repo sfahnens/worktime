@@ -102,30 +102,26 @@ public abstract class WorkRecordFormFragment extends DialogFragment implements F
 
         dialog.setOnShowListener(new DialogInterface.OnShowListener() {
             @Override
-            public void onShow(DialogInterface dialog) {
-                ((AlertDialog) dialog)
-                        .getButton(AlertDialog.BUTTON_POSITIVE)
+            public void onShow(DialogInterface unused) {
+                dialog.getButton(AlertDialog.BUTTON_POSITIVE)
                         .setOnClickListener(getOnSubmitListener());
 
-                ((AlertDialog) dialog)
-                        .getButton(AlertDialog.BUTTON_NEGATIVE)
+                dialog.getButton(AlertDialog.BUTTON_NEGATIVE)
                         .setOnClickListener(getOnAbortListener());
 
                 if (!isDialogCancelable()) {
-                    ((AlertDialog) dialog).setOnCancelListener(new DialogInterface.OnCancelListener() {
+                    dialog.setOnCancelListener(new DialogInterface.OnCancelListener() {
                         @Override
-                        public void onCancel(DialogInterface dialog) {
+                        public void onCancel(DialogInterface unused) {
                             System.out.println("try cancel");
                         }
                     });
 
-                    ((AlertDialog) dialog).setCanceledOnTouchOutside(false);
-                    ((AlertDialog) dialog).setCancelable(false);
+                    dialog.setCanceledOnTouchOutside(false);
+                    dialog.setCancelable(false);
                 }
             }
         });
-
-
         return dialog;
     }
 
@@ -137,7 +133,7 @@ public abstract class WorkRecordFormFragment extends DialogFragment implements F
 
     }
 
-    protected boolean validate() {
+    protected boolean isValid() {
         if (date.getDate() == null || startTime.getTime() == null || endTime.getTime() == null) {
             Toast.makeText(getActivity(), R.string.record_missing_fields_message, Toast.LENGTH_SHORT).show();
             return false;

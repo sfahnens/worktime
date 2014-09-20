@@ -11,7 +11,7 @@ public class DB extends SQLiteOpenHelper {
 
     public static final String DATABASE_NAME = "worktime.db";
 
-    public static final String TABLE_WORK_RECORDS = "time_records";
+    public static final String TABLE_WORK_RECORDS = "work_records";
     public static final String TABLE_LEAVE_RECORDS = "leave_records";
 
     public static final String COL_ID = "id";
@@ -47,10 +47,8 @@ public class DB extends SQLiteOpenHelper {
             COL_REASON + " text not null, " +
             COL_WORKDAYS + " integer not null);";
 
-    private static final String DROP = "drop table if exists " + TABLE_WORK_RECORDS;
-
     public DB(Context context) {
-        super(context, DATABASE_NAME, null, 3);
+        super(context, DATABASE_NAME, null, 7);
     }
 
     @Override
@@ -61,7 +59,9 @@ public class DB extends SQLiteOpenHelper {
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        db.execSQL(DROP);
+        db.execSQL("drop table if exists worktime_records");
+        db.execSQL("drop table if exists work_records");
+        db.execSQL("drop table if exists leave_records");
         onCreate(db);
     }
 }

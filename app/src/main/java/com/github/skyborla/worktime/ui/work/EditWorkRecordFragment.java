@@ -33,7 +33,7 @@ public class EditWorkRecordFragment extends WorkRecordFormFragment {
         return new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (!validate()) {
+                if (!isValid()) {
                     return;
                 }
 

@@ -40,7 +40,7 @@ public class NewWorkRecordFragment extends WorkRecordFormFragment {
             @Override
             public void onClick(View view) {
 
-                if (!validate()) {
+                if (!isValid()) {
                     return;
                 }
 

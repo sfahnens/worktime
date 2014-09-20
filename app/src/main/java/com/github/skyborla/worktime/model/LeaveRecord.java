@@ -91,4 +91,15 @@ public class LeaveRecord {
         result = 31 * result + (workdays != null ? workdays.hashCode() : 0);
         return result;
     }
+
+    @Override
+    public String toString() {
+        return "LeaveRecord{" +
+                "id=" + id +
+                ", baseId=" + baseId +
+                ", date=" + date +
+                ", reason=" + reason +
+                ", workdays=" + workdays +
+                '}';
+    }
 }

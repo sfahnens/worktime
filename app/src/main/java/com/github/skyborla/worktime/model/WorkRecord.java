@@ -58,14 +58,9 @@ public class WorkRecord implements Serializable {
     }
 
     @Override
-    public String toString() {
-        return id.toString();
-    }
-
-    @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (o == null || WorkRecord.class != o.getClass()) return false;
 
         WorkRecord workRecord = (WorkRecord) o;
 
@@ -86,5 +81,15 @@ public class WorkRecord implements Serializable {
         result = 31 * result + (startTime != null ? startTime.hashCode() : 0);
         result = 31 * result + (endTime != null ? endTime.hashCode() : 0);
         return result;
+    }
+
+    @Override
+    public String toString() {
+        return "WorkRecord{" +
+                "id=" + id +
+                ", date=" + date +
+                ", startTime=" + startTime +
+                ", endTime=" + endTime +
+                '}';
     }
 }

@@ -95,36 +95,6 @@ public class DataSource {
         database.delete(table, whereClause, null);
     }
 
-    private LeaveRecord cursorToLeaveRecord(Cursor cursor) {
-        LeaveRecord leaveRecord = new LeaveRecord();
-        leaveRecord.setId(cursor.getLong(0));
-
-        if (!cursor.isNull(1)) {
-            leaveRecord.setBaseId(cursor.getLong(1));
-        }
-
-        leaveRecord.setDate(LocalDate.parse(cursor.getString(2)));
-
-        leaveRecord.setReason(LeaveReason.valueOf(cursor.getString(3)));
-        leaveRecord.setWorkdays(cursor.getInt(4) != 0); //poor man's boolean
-
-        return leaveRecord;
-    }
-
-    private ContentValues leaveRecordToContentValues(LeaveRecord leaveRecord, Long baseId) {
-        ContentValues values = new ContentValues();
-
-        if (baseId != null) {
-            values.put(DB.COL_BASE_ID, baseId);
-        }
-
-        values.put(DB.COL_DATE, leaveRecord.getDate().toString());
-        values.put(DB.COL_MONTH, DB_MONTH_DATE_FORMAT.format(leaveRecord.getDate()));
-
-        values.put(DB.COL_REASON, leaveRecord.getReason().toString());
-        values.put(DB.COL_WORKDAYS, leaveRecord.getWorkdays() ? 1 : 0);
-        return values;
-    }
 
     private WorkRecord cursorToWorkRecord(Cursor cursor) {
         WorkRecord workRecord = new WorkRecord();
@@ -148,6 +118,63 @@ public class DataSource {
         values.put(DB.COL_END_TIME,
                 workRecord.getEndTime().truncatedTo(ChronoUnit.MINUTES).toString());
 
+        return values;
+    }
+
+    public long persistLeaveRecord(LeaveRecord leaveRecord) {
+        String table = DB.TABLE_LEAVE_RECORDS;
+        ContentValues values = leaveRecordToContentValues(leaveRecord);
+        return database.insert(table, null, values);
+    }
+
+    public List<LeaveRecord> getLeaveRecords(String month) {
+        List<LeaveRecord> workRecords = new ArrayList<LeaveRecord>();
+
+        String table = DB.TABLE_LEAVE_RECORDS;
+        String[] columns = DB.LEAVE_RECORD_COLUMNS;
+        String where = null; //DB.COL_MONTH + " = " + month;
+        String orderBy = DB.COL_DATE + " ASC";
+        Cursor cursor = database.query(table, columns, where, null, null, null, orderBy);
+
+        cursor.moveToFirst();
+        while (!cursor.isAfterLast()) {
+            workRecords.add(cursorToLeaveRecord(cursor));
+            cursor.moveToNext();
+        }
+
+        cursor.close();
+        return workRecords;
+    }
+
+
+    private LeaveRecord cursorToLeaveRecord(Cursor cursor) {
+        LeaveRecord leaveRecord = new LeaveRecord();
+        leaveRecord.setId(cursor.getLong(0));
+
+        if (!cursor.isNull(1)) {
+            leaveRecord.setBaseId(cursor.getLong(1));
+        }
+
+        leaveRecord.setDate(LocalDate.parse(cursor.getString(2)));
+
+        leaveRecord.setReason(LeaveReason.valueOf(cursor.getString(3)));
+        leaveRecord.setWorkdays(cursor.getInt(4) != 0); //poor man's boolean
+
+        return leaveRecord;
+    }
+
+    private ContentValues leaveRecordToContentValues(LeaveRecord leaveRecord) {
+        ContentValues values = new ContentValues();
+
+        if (leaveRecord.getBaseId() != null) {
+            values.put(DB.COL_BASE_ID, leaveRecord.getBaseId());
+        }
+
+        values.put(DB.COL_DATE, leaveRecord.getDate().toString());
+        values.put(DB.COL_MONTH, DB_MONTH_DATE_FORMAT.format(leaveRecord.getDate()));
+
+        values.put(DB.COL_REASON, leaveRecord.getReason().toString());
+        values.put(DB.COL_WORKDAYS, leaveRecord.getWorkdays() ? 1 : 0);
         return values;
     }
 }

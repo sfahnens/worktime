@@ -27,7 +27,7 @@ import org.threeten.bp.LocalDate;
 
 import java.util.Arrays;
 
-public class LeaveRecordFormFragment extends DialogFragment implements FormUpdateListener {
+public abstract class LeaveRecordFormFragment extends DialogFragment implements FormUpdateListener {
 
     private static final String ARG_BASE_ID = "base_id";
     private static final String ARG_START_DATE = "start_date";
@@ -36,7 +36,7 @@ public class LeaveRecordFormFragment extends DialogFragment implements FormUpdat
     private static final String ARG_WORKDAYS = "workdays";
     public static final LeaveReason DEFAULT_LEAVE_REASON = LeaveReason.VACATION;
 
-    private ModelInteraction mListener;
+    protected ModelInteraction mListener;
 
     protected long baseId;
     protected DateControl startDate;
@@ -49,24 +49,6 @@ public class LeaveRecordFormFragment extends DialogFragment implements FormUpdat
 
     private Spinner reasonSpinner;
     private Switch workdaysSwitch;
-
-    /**
-     * Use this factory method to create a new instance of
-     * this fragment using the provided parameters.
-     *
-     * @param param1 Parameter 1.
-     * @param param2 Parameter 2.
-     * @return A new instance of fragment LeaveRecordFragment.
-     */
-    // TODO: Rename and change types and number of parameters
-    public static LeaveRecordFormFragment newInstance(String param1, String param2) {
-        LeaveRecordFormFragment fragment = new LeaveRecordFormFragment();
-        Bundle args = new Bundle();
-        args.putString(ARG_BASE_ID, param1);
-        args.putString(ARG_START_DATE, param2);
-        fragment.setArguments(args);
-        return fragment;
-    }
 
     public LeaveRecordFormFragment() {
         // Required empty public constructor
@@ -120,19 +102,17 @@ public class LeaveRecordFormFragment extends DialogFragment implements FormUpdat
         dialog = new AlertDialog.Builder(getActivity())
                 .setTitle(getTitle())
                 .setView(view)
-                .setPositiveButton(R.string.dialog_generic_submit, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-
-                    }
-                })
-                .setPositiveButton(R.string.dialog_generic_abort, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-
-                    }
-                })
+                .setPositiveButton(R.string.dialog_generic_submit, null)
+                .setNegativeButton(R.string.dialog_generic_abort, null)
                 .create();
+
+        dialog.setOnShowListener(new DialogInterface.OnShowListener() {
+            @Override
+            public void onShow(DialogInterface unused) {
+                dialog.getButton(AlertDialog.BUTTON_POSITIVE)
+                        .setOnClickListener(getOnSubmitListener());
+            }
+        });
 
         return dialog;
     }
@@ -222,17 +202,16 @@ public class LeaveRecordFormFragment extends DialogFragment implements FormUpdat
         });
     }
 
-    protected boolean validate() {
+    protected boolean isValid() {
 
         if (endDate.getDate().isBefore(startDate.getDate())) {
             Toast.makeText(getActivity(), R.string.validate_end_before_start, Toast.LENGTH_SHORT).show();
             return false;
         }
-
-
         return true;
     }
 
+    protected abstract View.OnClickListener getOnSubmitListener();
 
     @Override
     public void onFormUpdated() {
