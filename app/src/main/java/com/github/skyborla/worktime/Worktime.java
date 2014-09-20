@@ -18,8 +18,9 @@ import android.view.MenuItem;
 
 import com.cocosw.undobar.UndoBarController;
 import com.github.skyborla.worktime.model.DataSource;
+import com.github.skyborla.worktime.model.LeaveRecord;
+import com.github.skyborla.worktime.model.MetaLeaveRecord;
 import com.github.skyborla.worktime.model.WorkRecord;
-import com.github.skyborla.worktime.ui.leave.LeaveRecordFormFragment;
 import com.github.skyborla.worktime.ui.leave.NewLeaveRecordFragment;
 import com.github.skyborla.worktime.ui.list.RecordsFragment;
 import com.github.skyborla.worktime.ui.work.EditWorkRecordFragment;
@@ -31,6 +32,7 @@ import java.io.File;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.List;
+import java.util.Set;
 
 
 public class Worktime extends FragmentActivity implements RecordsFragment.RecordsFragmentInteractionListener, ModelInteraction {
@@ -156,7 +158,7 @@ public class Worktime extends FragmentActivity implements RecordsFragment.Record
     }
 
     @Override
-    public void requestEdit(WorkRecord workRecord) {
+    public void beginEditWorkRecord(WorkRecord workRecord) {
         EditWorkRecordFragment
                 .newInstance(workRecord.getId(),
                         workRecord.getDate().toString(),
@@ -166,7 +168,7 @@ public class Worktime extends FragmentActivity implements RecordsFragment.Record
     }
 
     @Override
-    public void requestDelete(final WorkRecord workRecord) {
+    public void beginDeleteWorkRecord(final WorkRecord workRecord) {
 
         String message = "\n \u2022 " + FormatUtil.DATE_FORMAT_MEDIUM.format(workRecord.getDate());
         message += " (" + FormatUtil.formatTimes(workRecord) + ")\n";
@@ -182,16 +184,62 @@ public class Worktime extends FragmentActivity implements RecordsFragment.Record
                 .setPositiveButton(R.string.dialog_delete_confirm, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        dataSource.deleteWorkRecord(workRecord);
-                        modelChanged(workRecord.getDate());
+                        modelChanged(dataSource.deleteWorkRecord(workRecord));
 
                         new UndoBarController.UndoBar(Worktime.this)
                                 .message(R.string.undo_delete)
                                 .listener(new UndoBarController.UndoListener() {
                                     @Override
                                     public void onUndo(Parcelable parcelable) {
-                                        dataSource.persistWorkRecord(workRecord);
-                                        modelChanged(workRecord.getDate());
+                                        modelChanged(dataSource.persistWorkRecord(workRecord));
+                                    }
+                                })
+                                .duration(10000)
+                                .show(true);
+                    }
+                })
+                .create().show();
+    }
+
+    @Override
+    public void beginEditLeaveRecord(LeaveRecord leaveRecord) {
+
+        MetaLeaveRecord toEdit = dataSource.getMetaLeaveRecord(leaveRecord);
+        System.out.println(toEdit);
+
+
+    }
+
+    @Override
+    public void beginDeleteLeaveRecord(final LeaveRecord leaveRecord) {
+        final MetaLeaveRecord metaLeaveRecord = getDatasource().getMetaLeaveRecord(leaveRecord);
+
+        String message = "\n \u2022 von: " + FormatUtil.DATE_FORMAT_MEDIUM.format(metaLeaveRecord.getStartDate());
+        message += "\n \u2022 bis: " + FormatUtil.DATE_FORMAT_MEDIUM.format(metaLeaveRecord.getEndDate());
+        message += "\n \u2022 Grund: " + getString(metaLeaveRecord.getReason().stringResource);
+        message += "\n";
+
+        new AlertDialog.Builder(this)
+                .setTitle(R.string.dialog_confirm_delete_header)
+                .setMessage(message)
+                .setNegativeButton(R.string.dialog_generic_abort, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                    }
+                })
+                .setPositiveButton(R.string.dialog_delete_confirm, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        Set<LocalDate> affectedMonth = dataSource.deleteLeaveRecord(leaveRecord);
+                        modelChanged(affectedMonth);
+
+                        new UndoBarController.UndoBar(Worktime.this)
+                                .message(R.string.undo_delete)
+                                .listener(new UndoBarController.UndoListener() {
+                                    @Override
+                                    public void onUndo(Parcelable parcelable) {
+                                        Set<LocalDate> affectedMonth = dataSource.persistLeaveRecord(metaLeaveRecord);
+                                        modelChanged(affectedMonth);
                                     }
                                 })
                                 .duration(10000)
@@ -204,6 +252,11 @@ public class Worktime extends FragmentActivity implements RecordsFragment.Record
     @Override
     public DataSource getDatasource() {
         return dataSource;
+    }
+
+    @Override
+    public void modelChanged(Set<LocalDate> changed) {
+
     }
 
     @Override
@@ -260,15 +313,11 @@ public class Worktime extends FragmentActivity implements RecordsFragment.Record
             String dbFormatted = months.get(position);
 
             if (dbFormatted.length() == 6) {
-
-                LocalDate date = LocalDate.of(Integer.valueOf(dbFormatted.substring(0, 4)),
-                        Integer.valueOf(dbFormatted.substring(4)), 1);
-
+                LocalDate date = FormatUtil.parseDBMonthFormat(dbFormatted);
                 return FormatUtil.DATE_FORMAT_MONTH.format(date).toUpperCase();
             }
 
             return "-";
         }
     }
-
 }

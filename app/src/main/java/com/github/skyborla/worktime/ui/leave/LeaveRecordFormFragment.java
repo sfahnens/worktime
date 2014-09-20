@@ -205,7 +205,7 @@ public abstract class LeaveRecordFormFragment extends DialogFragment implements 
     protected boolean isValid() {
 
         if (endDate.getDate().isBefore(startDate.getDate())) {
-            Toast.makeText(getActivity(), R.string.validate_end_before_start, Toast.LENGTH_SHORT).show();
+            Toast.makeText(getActivity(), R.string.validate_date_end_before_start, Toast.LENGTH_SHORT).show();
             return false;
         }
         return true;

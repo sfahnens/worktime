@@ -52,4 +52,9 @@ public final class FormatUtil {
         }
     }
 
+    public static LocalDate parseDBMonthFormat(String dbFormatted) {
+        return LocalDate.of(Integer.valueOf(dbFormatted.substring(0, 4)),
+                Integer.valueOf(dbFormatted.substring(4)), 1);
+    }
+
 }

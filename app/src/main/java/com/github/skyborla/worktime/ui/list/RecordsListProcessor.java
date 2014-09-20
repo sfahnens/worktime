@@ -27,7 +27,7 @@ class RecordsListProcessor {
 
     long lastWeek = -1;
 
-    private List<Object> elements = new ArrayList<Object>();
+    private List<ListViewItem> elements = new ArrayList<ListViewItem>();
 
     public RecordsListProcessor(List<WorkRecord> workRecords, List<LeaveRecord> leaveRecords) {
         this.workRecords.addAll(workRecords);
@@ -71,25 +71,25 @@ class RecordsListProcessor {
         Duration worktime = Duration.between(workRecord.getStartTime(), workRecord.getEndTime());
         totalWorkedSeconds += worktime.getSeconds();
 
-        elements.add(new WorkRecordRenderable(workRecord));
+        elements.add(new WorkRecordItem(workRecord));
     }
 
     private void append(LeaveRecord leaveRecord) {
         checkAppendHeader(leaveRecord.getDate());
 
-        elements.add(new LeaveRecordRenderable(leaveRecord));
+        elements.add(new LeaveRecordItem(leaveRecord));
     }
 
     private void checkAppendHeader(LocalDate date) {
         int thisWeek = date.get(WeekFields.ISO.weekOfYear());
 
         if (thisWeek != lastWeek) {
-            elements.add(new WeekHeaderRenderable(thisWeek));
+            elements.add(new WeekHeaderItem(thisWeek));
             lastWeek = thisWeek;
         }
     }
 
-    public List<Object> getElements() {
+    public List<ListViewItem> getElements() {
         return elements;
     }
 

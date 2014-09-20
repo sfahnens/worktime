@@ -5,11 +5,10 @@ import android.widget.Toast;
 
 import com.github.skyborla.worktime.R;
 import com.github.skyborla.worktime.model.LeaveRecord;
+import com.github.skyborla.worktime.model.MetaLeaveRecord;
 
-import org.threeten.bp.DayOfWeek;
 import org.threeten.bp.LocalDate;
 
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -37,44 +36,23 @@ public class NewLeaveRecordFragment extends LeaveRecordFormFragment {
                     return;
                 }
 
-                LocalDate start = startDate.getDate();
-                LocalDate end = endDate.getDate();
+                MetaLeaveRecord metaLeaveRecord = new MetaLeaveRecord();
+                metaLeaveRecord.setStartDate(startDate.getDate());
+                metaLeaveRecord.setEndDate(endDate.getDate());
+                metaLeaveRecord.setReason(reason);
+                metaLeaveRecord.setWorkdays(workdays);
 
-                LeaveRecord leaveRecord = new LeaveRecord();
-                leaveRecord.setReason(reason);
-                leaveRecord.setWorkdays(workdays);
+                Set<LocalDate> affectedMonths = mListener.getDatasource().persistLeaveRecord(metaLeaveRecord);
 
-                Set<LocalDate> affectedMonths = new LinkedHashSet<LocalDate>();
-
-                LocalDate date = start;
-                while (!date.isAfter(end)) {
-
-                    if (workdays &&
-                            (date.getDayOfWeek() == DayOfWeek.SATURDAY ||
-                                    date.getDayOfWeek() == DayOfWeek.SUNDAY)) {
-                        date = date.plusDays(1);
-                        continue;
-                    }
-
-                    leaveRecord.setDate(date);
-                    affectedMonths.add(date.withDayOfMonth(1));
-
-                    long id = mListener.getDatasource().persistLeaveRecord(leaveRecord);
-                    if (leaveRecord.getBaseId() == null) {
-                        leaveRecord.setBaseId(id);
-                    }
-
-                    date = date.plusDays(1);
+                if (affectedMonths.isEmpty()) {
+                    Toast.makeText(getActivity(), R.string.validate_all_days_on_weekend, Toast.LENGTH_SHORT).show();
+                    return;
                 }
 
-                if(affectedMonths.isEmpty()) {
-                    Toast.makeText(getActivity(), R.string.all_days_on_weekend, Toast.LENGTH_SHORT).show();
-                }
-
-
-                mListener.modelChanged(start);
+                mListener.modelChanged(affectedMonths.toArray(new LocalDate[0]));
                 dismiss();
 
+                // XXX
                 List<LeaveRecord> leaveRecords = mListener.getDatasource().getLeaveRecords(null);
                 for (LeaveRecord record : leaveRecords) {
                     System.out.println(record);

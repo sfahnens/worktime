@@ -2,7 +2,9 @@ package com.github.skyborla.worktime.ui.list;
 
 
 import android.app.Activity;
+import android.view.ContextMenu;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
@@ -17,7 +19,7 @@ import org.threeten.bp.LocalTime;
 /**
  * Created by Sebastian on 20.09.2014.
  */
-public class WorkRecordRenderable implements ListViewRenderable {
+public class WorkRecordItem implements ListViewItem {
 
     public static class WorkRecordHolder {
         public TextView dateText;
@@ -27,7 +29,7 @@ public class WorkRecordRenderable implements ListViewRenderable {
 
     private WorkRecord workRecord;
 
-    public WorkRecordRenderable(WorkRecord workRecord) {
+    public WorkRecordItem(WorkRecord workRecord) {
         this.workRecord = workRecord;
     }
 
@@ -63,5 +65,32 @@ public class WorkRecordRenderable implements ListViewRenderable {
         holder.timeText.setText(FormatUtil.formatTimes(workRecord));
 
         return row;
+    }
+
+    @Override
+    public void onCreateContextMenu(Activity activity, ContextMenu menu) {
+
+        String header = FormatUtil.DATE_FORMAT_SHORT.format(workRecord.getDate());
+        header += " (" + FormatUtil.formatTimes(workRecord) + ")";
+
+        menu.setHeaderTitle(header);
+        menu.setHeaderIcon(R.drawable.ic_launcher);
+
+        activity.getMenuInflater().inflate(R.menu.records_context, menu);
+
+    }
+
+    @Override
+    public boolean onContextItemSelected(MenuItem item, RecordsFragment.RecordsFragmentInteractionListener mListener) {
+        switch (item.getItemId()) {
+            case R.id.records_context_edit:
+                mListener.beginEditWorkRecord(workRecord);
+                break;
+            case R.id.records_context_delete:
+                mListener.beginDeleteWorkRecord(workRecord);
+                break;
+        }
+
+        return true;
     }
 }

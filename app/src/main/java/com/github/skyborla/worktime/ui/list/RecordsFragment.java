@@ -14,7 +14,6 @@ import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 
-import com.github.skyborla.worktime.FormatUtil;
 import com.github.skyborla.worktime.R;
 import com.github.skyborla.worktime.model.DataSource;
 import com.github.skyborla.worktime.model.LeaveRecord;
@@ -33,7 +32,7 @@ public class RecordsFragment extends Fragment {
     private DataSource dataSource;
 
     private RecordsFragmentInteractionListener mListener;
-    private ArrayAdapter<Object> adapter;
+    private ArrayAdapter<ListViewItem> adapter;
 
     public static RecordsFragment newInstance(String month) {
         RecordsFragment fragment = new RecordsFragment();
@@ -144,48 +143,18 @@ public class RecordsFragment extends Fragment {
     @Override
     public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
         AdapterView.AdapterContextMenuInfo adapterInfo = (AdapterView.AdapterContextMenuInfo) menuInfo;
-        Object item = adapter.getItem(adapterInfo.position);
-
-        if (!(item instanceof WorkRecord)) {
-            return;
-        }
-        WorkRecord workRecord = (WorkRecord) item;
-
-        String header = FormatUtil.DATE_FORMAT_SHORT.format(workRecord.getDate());
-        header += " (" + FormatUtil.formatTimes(workRecord) + ")";
-
-        menu.setHeaderTitle(header);
-        menu.setHeaderIcon(R.drawable.ic_launcher);
-
-        getActivity().getMenuInflater().inflate(R.menu.records_context, menu);
+        adapter.getItem(adapterInfo.position).onCreateContextMenu(getActivity(), menu);
     }
 
     @Override
     public boolean onContextItemSelected(MenuItem item) {
         AdapterView.AdapterContextMenuInfo adapterInfo = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
-        WorkRecord workRecord;
-        try {
-            workRecord = (WorkRecord) adapter.getItem(adapterInfo.position);
-        } catch (IndexOutOfBoundsException e) {
-            e.printStackTrace();
-            return false;
-        }
-
-        switch (item.getItemId()) {
-            case R.id.records_context_edit:
-                mListener.requestEdit(workRecord);
-                break;
-            case R.id.records_context_delete:
-                mListener.requestDelete(workRecord);
-                break;
-        }
-
-        return true;
+        return adapter.getItem(adapterInfo.position).onContextItemSelected(item, mListener);
     }
 
-    public class RecordsAdapter extends ArrayAdapter<Object> {
+    public class RecordsAdapter extends ArrayAdapter<ListViewItem> {
 
-        public RecordsAdapter(Context context, List<Object> objects) {
+        public RecordsAdapter(Context context, List<ListViewItem> objects) {
             super(context, 0, objects);
         }
 
@@ -196,7 +165,7 @@ public class RecordsFragment extends Fragment {
 
         @Override
         public int getItemViewType(int position) {
-            return ((ListViewRenderable) getItem(position)).getItemViewType();
+            return getItem(position).getItemViewType();
         }
 
         @Override
@@ -212,13 +181,17 @@ public class RecordsFragment extends Fragment {
 
         @Override
         public View getView(int position, View row, ViewGroup parent) {
-            return ((ListViewRenderable) getItem(position)).getView((Activity) getContext(), row, parent);
+            return getItem(position).getView(getActivity(), row, parent);
         }
     }
 
     public interface RecordsFragmentInteractionListener {
-        void requestEdit(WorkRecord workRecord);
+        void beginEditWorkRecord(WorkRecord workRecord);
 
-        void requestDelete(WorkRecord workRecord);
+        void beginDeleteWorkRecord(WorkRecord workRecord);
+
+        void beginEditLeaveRecord(LeaveRecord leaveRecord);
+
+        void beginDeleteLeaveRecord(LeaveRecord leaveRecord);
     }
 }

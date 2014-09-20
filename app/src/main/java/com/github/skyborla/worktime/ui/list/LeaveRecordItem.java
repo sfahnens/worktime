@@ -1,7 +1,9 @@
 package com.github.skyborla.worktime.ui.list;
 
 import android.app.Activity;
+import android.view.ContextMenu;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
@@ -13,7 +15,7 @@ import com.github.skyborla.worktime.model.LeaveRecord;
 /**
  * Created by Sebastian on 20.09.2014.
  */
-public class LeaveRecordRenderable implements ListViewRenderable {
+public class LeaveRecordItem implements ListViewItem {
 
     public static class LeaveRecordHolder {
         public TextView dateText;
@@ -22,7 +24,7 @@ public class LeaveRecordRenderable implements ListViewRenderable {
 
     private LeaveRecord leaveRecord;
 
-    public LeaveRecordRenderable(LeaveRecord leaveRecord) {
+    public LeaveRecordItem(LeaveRecord leaveRecord) {
         this.leaveRecord = leaveRecord;
     }
 
@@ -52,5 +54,27 @@ public class LeaveRecordRenderable implements ListViewRenderable {
         holder.reasonText.setText(leaveRecord.getReason().stringResource);
 
         return row;
+    }
+
+    @Override
+    public void onCreateContextMenu(Activity activity, ContextMenu menu) {
+        menu.setHeaderTitle(R.string.context_leave);
+        menu.setHeaderIcon(R.drawable.ic_launcher);
+
+        activity.getMenuInflater().inflate(R.menu.records_context, menu);
+    }
+
+    @Override
+    public boolean onContextItemSelected(MenuItem item, RecordsFragment.RecordsFragmentInteractionListener mListener) {
+        switch (item.getItemId()) {
+            case R.id.records_context_edit:
+                mListener.beginEditLeaveRecord(leaveRecord);
+                break;
+            case R.id.records_context_delete:
+                mListener.beginDeleteLeaveRecord(leaveRecord);
+                break;
+        }
+
+        return true;
     }
 }

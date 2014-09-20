@@ -135,12 +135,12 @@ public abstract class WorkRecordFormFragment extends DialogFragment implements F
 
     protected boolean isValid() {
         if (date.getDate() == null || startTime.getTime() == null || endTime.getTime() == null) {
-            Toast.makeText(getActivity(), R.string.record_missing_fields_message, Toast.LENGTH_SHORT).show();
+            Toast.makeText(getActivity(), R.string.validate_missing_fields_message, Toast.LENGTH_SHORT).show();
             return false;
         }
 
         if (endTime.getTime().isBefore(startTime.getTime())) {
-            Toast.makeText(getActivity(), R.string.record_end_before_start, Toast.LENGTH_SHORT).show();
+            Toast.makeText(getActivity(), R.string.validate_time_end_before_start, Toast.LENGTH_SHORT).show();
             return false;
         }
         return true;

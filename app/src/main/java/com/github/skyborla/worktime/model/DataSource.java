@@ -5,6 +5,9 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 
+import com.github.skyborla.worktime.FormatUtil;
+
+import org.threeten.bp.DayOfWeek;
 import org.threeten.bp.LocalDate;
 import org.threeten.bp.LocalTime;
 import org.threeten.bp.format.DateTimeFormatter;
@@ -12,6 +15,7 @@ import org.threeten.bp.temporal.ChronoUnit;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
@@ -69,11 +73,13 @@ public class DataSource {
         return new ArrayList<String>(months);
     }
 
-    public void persistWorkRecord(WorkRecord workRecord) {
+    public LocalDate persistWorkRecord(WorkRecord workRecord) {
 
         String table = DB.TABLE_WORK_RECORDS;
         ContentValues values = workRecordToContentValues(workRecord);
         database.insert(table, null, values);
+
+        return workRecord.getDate().withDayOfMonth(1);
     }
 
     public List<WorkRecord> getWorkRecords(String month) {
@@ -95,17 +101,35 @@ public class DataSource {
         return workRecords;
     }
 
-    public void updateWorkRecord(WorkRecord workRecord) {
+    public Set<LocalDate> updateWorkRecord(WorkRecord workRecord) {
+        Set<LocalDate> affectedMonths = new HashSet<LocalDate>();
+
+        // add old month to affected month
         String table = DB.TABLE_WORK_RECORDS;
+        String[] columns = DB.WORK_RECORD_COLUMNS;
+        String where = DB.COL_ID + " = " + workRecord.getId();
+        Cursor cursor = database.query(table, columns, where, null, null, null, null);
+
+        cursor.moveToFirst();
+        affectedMonths.add(FormatUtil.parseDBMonthFormat(cursor.getString(0)));
+        cursor.close();
+
+        // update record
         ContentValues values = workRecordToContentValues(workRecord);
         String whereClause = DB.COL_ID + " = " + workRecord.getId();
         database.update(table, values, whereClause, null);
+
+        // add old month to affected month
+        affectedMonths.add(workRecord.getDate().withDayOfMonth(1));
+        return affectedMonths;
     }
 
-    public void deleteWorkRecord(WorkRecord workRecord) {
+    public LocalDate deleteWorkRecord(WorkRecord workRecord) {
         String table = DB.TABLE_WORK_RECORDS;
         String whereClause = DB.COL_ID + " = " + workRecord.getId();
         database.delete(table, whereClause, null);
+
+        return workRecord.getDate().withDayOfMonth(1);
     }
 
 
@@ -134,10 +158,112 @@ public class DataSource {
         return values;
     }
 
-    public long persistLeaveRecord(LeaveRecord leaveRecord) {
+    public Set<LocalDate> persistLeaveRecord(MetaLeaveRecord metaLeaveRecord) {
         String table = DB.TABLE_LEAVE_RECORDS;
-        ContentValues values = leaveRecordToContentValues(leaveRecord);
-        return database.insert(table, null, values);
+
+        LeaveRecord leaveRecord = new LeaveRecord();
+        leaveRecord.setReason(metaLeaveRecord.getReason());
+        leaveRecord.setWorkdays(metaLeaveRecord.isWorkdays());
+
+        Set<LocalDate> affectedMonths = new LinkedHashSet<LocalDate>();
+
+        LocalDate date = metaLeaveRecord.getStartDate();
+        while (!date.isAfter(metaLeaveRecord.getEndDate())) {
+
+            if (metaLeaveRecord.isWorkdays() &&
+                    (date.getDayOfWeek() == DayOfWeek.SATURDAY ||
+                            date.getDayOfWeek() == DayOfWeek.SUNDAY)) {
+                date = date.plusDays(1);
+                continue;
+            }
+
+            leaveRecord.setDate(date);
+            affectedMonths.add(date.withDayOfMonth(1));
+
+            ContentValues values = leaveRecordToContentValues(leaveRecord);
+
+            long id = database.insert(table, null, values);
+            if (leaveRecord.getBaseId() == null) {
+                leaveRecord.setBaseId(id);
+            }
+
+            date = date.plusDays(1);
+        }
+
+        return affectedMonths;
+    }
+
+    public MetaLeaveRecord getMetaLeaveRecord(LeaveRecord leaveRecord) {
+        MetaLeaveRecord metaLeaveRecord = new MetaLeaveRecord();
+        metaLeaveRecord.setReason(leaveRecord.getReason());
+        metaLeaveRecord.setWorkdays(leaveRecord.getWorkdays());
+
+        long id = getMetaIdOfLeaveRecord(leaveRecord);
+        metaLeaveRecord.setId(id);
+
+        // reconstruct date boundaries
+        String table = DB.TABLE_LEAVE_RECORDS;
+        String[] columns = new String[]{DB.COL_DATE};
+        String where = DB.COL_ID + " = " + id + " or " + DB.COL_BASE_ID + " = " + id;
+        String orderBy = DB.COL_DATE + " ASC";
+        Cursor cursor = database.query(table, columns, where, null, null, null, orderBy);
+
+        cursor.moveToFirst();
+        metaLeaveRecord.setStartDate(LocalDate.parse(cursor.getString(0)));
+
+        cursor.moveToLast();
+        metaLeaveRecord.setEndDate(LocalDate.parse(cursor.getString(0)));
+
+        cursor.close();
+
+        return metaLeaveRecord;
+    }
+
+    private long getMetaIdOfLeaveRecord(LeaveRecord leaveRecord) {
+        long id;
+        if (leaveRecord.getBaseId() != null) {
+            id = leaveRecord.getBaseId();
+        } else {
+            id = leaveRecord.getId();
+        }
+        return id;
+    }
+
+    public Set<LocalDate> deleteLeaveRecord(LeaveRecord leaveRecord) {
+        long id = getMetaIdOfLeaveRecord(leaveRecord);
+        return deleteLeaveRecord(id);
+    }
+
+    private Set<LocalDate> deleteLeaveRecord(long id) {
+        Set<LocalDate> affectedMonths = new LinkedHashSet<LocalDate>();
+
+        // record affected months
+        String table = DB.TABLE_LEAVE_RECORDS;
+        String[] columns = new String[]{DB.COL_MONTH};
+        String where = DB.COL_ID + " = " + id + " or " + DB.COL_BASE_ID + " = " + id;
+        String groupBy = DB.COL_MONTH;
+        String orderBy = DB.COL_MONTH + " ASC";
+        Cursor cursor = database.query(table, columns, where, null, groupBy, null, orderBy);
+
+        cursor.moveToFirst();
+        while (!cursor.isAfterLast()) {
+            affectedMonths.add(FormatUtil.parseDBMonthFormat(cursor.getString(0)));
+            cursor.moveToNext();
+        }
+        cursor.close();
+
+        // delete entries
+        database.delete(table, where, null);
+
+        return affectedMonths;
+    }
+
+    public Set<LocalDate> updateLeaveRecord(MetaLeaveRecord record) {
+
+        Set<LocalDate> affectedMonths = deleteLeaveRecord(record.getId());
+        affectedMonths.addAll(persistLeaveRecord(record));
+
+        return affectedMonths;
     }
 
     public List<LeaveRecord> getLeaveRecords(String month) {
