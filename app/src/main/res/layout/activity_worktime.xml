@@ -5,7 +5,7 @@
     android:layout_height="match_parent"
     tools:context="com.github.skyborla.worktime.Worktime">
 
-    <com.github.skyborla.worktime.ui.list.StyledPagerTabStrip
+    <com.github.skyborla.worktime.ui.StyledPagerTabStrip
         android:id="@+id/pager_header"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
