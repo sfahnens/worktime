@@ -15,22 +15,40 @@ public class DB extends SQLiteOpenHelper {
     public static final String TABLE_LEAVE_RECORDS = "leave_records";
 
     public static final String COL_ID = "id";
-
-    public static final String COL_DATE = "date";
     public static final String COL_MONTH = "month";
 
+    // work record
+    public static final String COL_DATE = "date";
     public static final String COL_START_TIME = "start_time";
     public static final String COL_END_TIME = "end_time";
 
-    public static final String[] WORK_RECORD_COLUMNS = new String[]{COL_ID, COL_DATE, COL_START_TIME, COL_END_TIME};
+    // leave record
+    public static final String COL_BASE_ID = "base_id";
+    public static final String COL_START_DATE = "start_date";
+    public static final String COL_END_DATE = "end_date";
+    public static final String COL_REASON = "reason";
+    public static final String COL_WORKDAYS = "workdays";
 
+    public static final String[] WORK_RECORD_COLUMNS =
+            new String[]{COL_ID, COL_DATE, COL_START_TIME, COL_END_TIME};
+    public static final String[] LEAVE_RECORD_COLUMNS =
+            new String[]{COL_ID, COL_BASE_ID, COL_MONTH, COL_START_DATE, COL_END_DATE, COL_REASON, COL_WORKDAYS};
 
-    private static final String CREATE = "create table " + TABLE_WORK_RECORDS +
-            " (" + COL_ID + " integer primary key autoincrement, " +
+    private static final String CREATE_TABLE_WORK_RECORDS = "create table " + TABLE_WORK_RECORDS +
+            " (" + COL_ID + " integer primary key autoincrement, " + // PK
+            COL_MONTH + " text not null, " +        // fast lookup in gui
             COL_DATE + " text not null, " +
-            COL_MONTH + " text not null, " +
-            COL_START_TIME + " text, " +
-            COL_END_TIME + " text);";
+            COL_START_TIME + " text not null, " +
+            COL_END_TIME + " text not null);";
+
+    private static final String CREATE_TABLE_LEAVE_RECORDS = "create table " + TABLE_LEAVE_RECORDS +
+            " (" + COL_ID + " integer primary key autoincrement, " + // PK
+            COL_BASE_ID + " integer, " +            // metadata to group multiday entries
+            COL_MONTH + " text not null, " +        // fast lookup in gui
+            COL_START_DATE + " text not null, " +
+            COL_END_DATE + " text not null, " +
+            COL_REASON + " text not null, " +
+            COL_WORKDAYS + " integer not null);";
 
     private static final String DROP = "drop table if exists " + TABLE_WORK_RECORDS;
 
@@ -40,7 +58,8 @@ public class DB extends SQLiteOpenHelper {
 
     @Override
     public void onCreate(SQLiteDatabase db) {
-        db.execSQL(CREATE);
+        db.execSQL(CREATE_TABLE_WORK_RECORDS);
+        db.execSQL(CREATE_TABLE_LEAVE_RECORDS);
     }
 
     @Override

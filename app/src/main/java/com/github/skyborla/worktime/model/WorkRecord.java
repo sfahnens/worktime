@@ -10,8 +10,6 @@ import java.io.Serializable;
  */
 public class WorkRecord implements Serializable {
 
-
-
     private Long id;
 
     private LocalDate date;
