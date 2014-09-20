@@ -12,7 +12,10 @@ import org.threeten.bp.temporal.ChronoUnit;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
 
 /**
  * Created by Sebastian on 12.09.2014.
@@ -38,22 +41,32 @@ public class DataSource {
 
     public List<String> getMonths() {
 
-        List<String> months = new ArrayList<String>();
+        Set<String> months = new TreeSet<String>();
 
-        String table = DB.TABLE_WORK_RECORDS;
+        String workTable = DB.TABLE_WORK_RECORDS;
         String[] columns = new String[]{DB.COL_MONTH};
         String groupBy = DB.COL_MONTH;
         String orderBy = DB.COL_MONTH + " ASC";
-        Cursor cursor = database.query(table, columns, null, null, groupBy, null, orderBy);
+        Cursor workCursor = database.query(workTable, columns, null, null, groupBy, null, orderBy);
 
-        cursor.moveToFirst();
-        while (!cursor.isAfterLast()) {
-            months.add(cursor.getString(0));
-            cursor.moveToNext();
+        workCursor.moveToFirst();
+        while (!workCursor.isAfterLast()) {
+            months.add(workCursor.getString(0));
+            workCursor.moveToNext();
         }
+        workCursor.close();
 
-        cursor.close();
-        return months;
+        String leaveTable = DB.TABLE_LEAVE_RECORDS;
+        Cursor leaveCursor = database.query(leaveTable, columns, null, null, groupBy, null, orderBy);
+
+        leaveCursor.moveToFirst();
+        while (!leaveCursor.isAfterLast()) {
+            months.add(leaveCursor.getString(0));
+            leaveCursor.moveToNext();
+        }
+        leaveCursor.close();
+
+        return new ArrayList<String>(months);
     }
 
     public void persistWorkRecord(WorkRecord workRecord) {
@@ -132,7 +145,7 @@ public class DataSource {
 
         String table = DB.TABLE_LEAVE_RECORDS;
         String[] columns = DB.LEAVE_RECORD_COLUMNS;
-        String where = null; //DB.COL_MONTH + " = " + month;
+        String where = DB.COL_MONTH + " = " + month;
         String orderBy = DB.COL_DATE + " ASC";
         Cursor cursor = database.query(table, columns, where, null, null, null, orderBy);
 

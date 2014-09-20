@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="8dp"
+    android:weightSum="1">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/record_list_date"
+        android:textSize="18sp"
+        android:layout_weight="0.5" />
+
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/record_list_time"
+        android:layout_weight="0.5"
+        android:textSize="18sp"
+        android:gravity="right" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/record_list_reason"
+        android:paddingStart="16dp"
+        android:textColor="@android:color/holo_blue_dark"
+        android:textSize="17sp"
+        android:textStyle="bold"
+        android:gravity="right" />
+</LinearLayout>

@@ -23,7 +23,6 @@ import com.github.skyborla.worktime.model.WorkRecord;
 import java.sql.SQLException;
 import java.util.List;
 
-
 public class RecordsFragment extends Fragment {
     private static final String ARG_MONTH = "month";
     private String month;

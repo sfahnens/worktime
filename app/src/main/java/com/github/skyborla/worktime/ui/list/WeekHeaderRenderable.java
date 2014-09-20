@@ -28,7 +28,7 @@ public class WeekHeaderRenderable implements ListViewRenderable {
     public View getView(Activity activity, View row, ViewGroup parent) {
         if (row == null) {
             LayoutInflater inflater = activity.getLayoutInflater();
-            row = inflater.inflate(R.layout.record_list_header, parent, false);
+            row = inflater.inflate(R.layout.record_list_header_item, parent, false);
         }
 
         TextView text = (TextView) row.findViewById(R.id.record_list_week);

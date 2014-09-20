@@ -42,11 +42,11 @@ public class WorkRecordRenderable implements ListViewRenderable {
         WorkRecordHolder holder;
         if (row == null) {
             LayoutInflater inflater = activity.getLayoutInflater();
-            row = inflater.inflate(R.layout.record_list_item, parent, false);
+            row = inflater.inflate(R.layout.record_list_work_item, parent, false);
 
             holder = new WorkRecordHolder();
             holder.dateText = (TextView) row.findViewById(R.id.record_list_date);
-            holder.durationText = (TextView) row.findViewById(R.id.record_list_duration);
+            holder.durationText = (TextView) row.findViewById(R.id.record_list_reason);
             holder.timeText = (TextView) row.findViewById(R.id.record_list_time);
 
             row.setTag(holder);

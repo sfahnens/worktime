@@ -53,10 +53,12 @@ class RecordsListProcessor {
                 for (WorkRecord workRecord : workRecords) {
                     append(workRecord);
                 }
+                workRecords.clear();
             } else if (leaveRecords.size() > 0) {
                 for (LeaveRecord leaveRecord : leaveRecords) {
                     append(leaveRecord);
                 }
+                leaveRecords.clear();
             }
         }
     }
@@ -69,23 +71,20 @@ class RecordsListProcessor {
         Duration worktime = Duration.between(workRecord.getStartTime(), workRecord.getEndTime());
         totalWorkedSeconds += worktime.getSeconds();
 
-        elements.add(workRecord);
+        elements.add(new WorkRecordRenderable(workRecord));
     }
 
     private void append(LeaveRecord leaveRecord) {
         checkAppendHeader(leaveRecord.getDate());
 
-        elements.add(leaveRecord);
+        elements.add(new LeaveRecordRenderable(leaveRecord));
     }
 
     private void checkAppendHeader(LocalDate date) {
         int thisWeek = date.get(WeekFields.ISO.weekOfYear());
 
         if (thisWeek != lastWeek) {
-            WeekHeader header = new WeekHeader();
-            header.week = thisWeek;
-
-            elements.add(header);
+            elements.add(new WeekHeaderRenderable(thisWeek));
             lastWeek = thisWeek;
         }
     }
