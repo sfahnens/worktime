@@ -16,23 +16,21 @@ public class DB extends SQLiteOpenHelper {
 
     public static final String COL_ID = "id";
     public static final String COL_MONTH = "month";
+    public static final String COL_DATE = "date";
 
     // work record
-    public static final String COL_DATE = "date";
     public static final String COL_START_TIME = "start_time";
     public static final String COL_END_TIME = "end_time";
 
     // leave record
     public static final String COL_BASE_ID = "base_id";
-    public static final String COL_START_DATE = "start_date";
-    public static final String COL_END_DATE = "end_date";
     public static final String COL_REASON = "reason";
     public static final String COL_WORKDAYS = "workdays";
 
     public static final String[] WORK_RECORD_COLUMNS =
             new String[]{COL_ID, COL_DATE, COL_START_TIME, COL_END_TIME};
     public static final String[] LEAVE_RECORD_COLUMNS =
-            new String[]{COL_ID, COL_BASE_ID, COL_MONTH, COL_START_DATE, COL_END_DATE, COL_REASON, COL_WORKDAYS};
+            new String[]{COL_ID, COL_BASE_ID, COL_DATE, COL_REASON, COL_WORKDAYS};
 
     private static final String CREATE_TABLE_WORK_RECORDS = "create table " + TABLE_WORK_RECORDS +
             " (" + COL_ID + " integer primary key autoincrement, " + // PK
@@ -45,8 +43,7 @@ public class DB extends SQLiteOpenHelper {
             " (" + COL_ID + " integer primary key autoincrement, " + // PK
             COL_BASE_ID + " integer, " +            // metadata to group multiday entries
             COL_MONTH + " text not null, " +        // fast lookup in gui
-            COL_START_DATE + " text not null, " +
-            COL_END_DATE + " text not null, " +
+            COL_DATE + " text not null, " +
             COL_REASON + " text not null, " +
             COL_WORKDAYS + " integer not null);";
 

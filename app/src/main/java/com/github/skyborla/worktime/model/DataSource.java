@@ -95,6 +95,37 @@ public class DataSource {
         database.delete(table, whereClause, null);
     }
 
+    private LeaveRecord cursorToLeaveRecord(Cursor cursor) {
+        LeaveRecord leaveRecord = new LeaveRecord();
+        leaveRecord.setId(cursor.getLong(0));
+
+        if (!cursor.isNull(1)) {
+            leaveRecord.setBaseId(cursor.getLong(1));
+        }
+
+        leaveRecord.setDate(LocalDate.parse(cursor.getString(2)));
+
+        leaveRecord.setReason(LeaveReason.valueOf(cursor.getString(3)));
+        leaveRecord.setWorkdays(cursor.getInt(4) != 0); //poor man's boolean
+
+        return leaveRecord;
+    }
+
+    private ContentValues leaveRecordToContentValues(LeaveRecord leaveRecord, Long baseId) {
+        ContentValues values = new ContentValues();
+
+        if (baseId != null) {
+            values.put(DB.COL_BASE_ID, baseId);
+        }
+
+        values.put(DB.COL_DATE, leaveRecord.getDate().toString());
+        values.put(DB.COL_MONTH, DB_MONTH_DATE_FORMAT.format(leaveRecord.getDate()));
+
+        values.put(DB.COL_REASON, leaveRecord.getReason().toString());
+        values.put(DB.COL_WORKDAYS, leaveRecord.getWorkdays() ? 1 : 0);
+        return values;
+    }
+
     private WorkRecord cursorToWorkRecord(Cursor cursor) {
         WorkRecord workRecord = new WorkRecord();
         workRecord.setId(cursor.getLong(0));
@@ -108,20 +139,15 @@ public class DataSource {
     private ContentValues workRecordToContentValues(WorkRecord workRecord) {
         ContentValues values = new ContentValues();
 
-        if (workRecord.getDate() != null) {
-            values.put(DB.COL_DATE, workRecord.getDate().toString());
-            values.put(DB.COL_MONTH, DB_MONTH_DATE_FORMAT.format(workRecord.getDate()));
-        }
+        values.put(DB.COL_DATE, workRecord.getDate().toString());
+        values.put(DB.COL_MONTH, DB_MONTH_DATE_FORMAT.format(workRecord.getDate()));
 
-        if (workRecord.getStartTime() != null) {
-            values.put(DB.COL_START_TIME,
-                    workRecord.getStartTime().truncatedTo(ChronoUnit.MINUTES).toString());
-        }
+        values.put(DB.COL_START_TIME,
+                workRecord.getStartTime().truncatedTo(ChronoUnit.MINUTES).toString());
 
-        if (workRecord.getEndTime() != null) {
-            values.put(DB.COL_END_TIME,
-                    workRecord.getEndTime().truncatedTo(ChronoUnit.MINUTES).toString());
-        }
+        values.put(DB.COL_END_TIME,
+                workRecord.getEndTime().truncatedTo(ChronoUnit.MINUTES).toString());
+
         return values;
     }
 }

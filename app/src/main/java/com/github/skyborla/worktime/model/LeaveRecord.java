@@ -10,19 +10,17 @@ public class LeaveRecord {
     private Long id;
     private Long baseId;
 
-    private LocalDate startDate;
-    private LocalDate endDate;
+    private LocalDate date;
     private LeaveReason reason;
     private Boolean workdays;
 
     public LeaveRecord() {
     }
 
-    public LeaveRecord(Long id, Long baseId, LocalDate startDate, LocalDate endDate, LeaveReason reason, Boolean workdays) {
+    public LeaveRecord(Long id, Long baseId, LocalDate date, LeaveReason reason, Boolean workdays) {
         this.id = id;
         this.baseId = baseId;
-        this.startDate = startDate;
-        this.endDate = endDate;
+        this.date = date;
         this.reason = reason;
         this.workdays = workdays;
     }
@@ -43,20 +41,12 @@ public class LeaveRecord {
         this.baseId = baseId;
     }
 
-    public LocalDate getStartDate() {
-        return startDate;
+    public LocalDate getDate() {
+        return date;
     }
 
-    public void setStartDate(LocalDate startDate) {
-        this.startDate = startDate;
-    }
-
-    public LocalDate getEndDate() {
-        return endDate;
-    }
-
-    public void setEndDate(LocalDate endDate) {
-        this.endDate = endDate;
+    public void setDate(LocalDate date) {
+        this.date = date;
     }
 
     public LeaveReason getReason() {
@@ -83,11 +73,9 @@ public class LeaveRecord {
         LeaveRecord that = (LeaveRecord) o;
 
         if (baseId != null ? !baseId.equals(that.baseId) : that.baseId != null) return false;
-        if (endDate != null ? !endDate.equals(that.endDate) : that.endDate != null) return false;
+        if (date != null ? !date.equals(that.date) : that.date != null) return false;
         if (id != null ? !id.equals(that.id) : that.id != null) return false;
         if (reason != that.reason) return false;
-        if (startDate != null ? !startDate.equals(that.startDate) : that.startDate != null)
-            return false;
         if (workdays != null ? !workdays.equals(that.workdays) : that.workdays != null)
             return false;
 
@@ -98,8 +86,7 @@ public class LeaveRecord {
     public int hashCode() {
         int result = id != null ? id.hashCode() : 0;
         result = 31 * result + (baseId != null ? baseId.hashCode() : 0);
-        result = 31 * result + (startDate != null ? startDate.hashCode() : 0);
-        result = 31 * result + (endDate != null ? endDate.hashCode() : 0);
+        result = 31 * result + (date != null ? date.hashCode() : 0);
         result = 31 * result + (reason != null ? reason.hashCode() : 0);
         result = 31 * result + (workdays != null ? workdays.hashCode() : 0);
         return result;
