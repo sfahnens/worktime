@@ -11,7 +11,7 @@ import java.util.Set;
  */
 public interface ModelInteraction {
 
-    DataSource getDatasource();
+    DataSource getDataSource();
 
     void modelChanged(Set<LocalDate> changed);
 

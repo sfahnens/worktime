@@ -43,7 +43,7 @@ public class EditWorkRecordFragment extends WorkRecordFormFragment {
                 workRecord.setStartTime(startTime.getTime());
                 workRecord.setEndTime(endTime.getTime());
 
-                mListener.getDatasource().updateWorkRecord(workRecord);
+                mListener.getDataSource().updateWorkRecord(workRecord);
                 mListener.modelChanged(date.getDate());
 
                 dialog.dismiss();

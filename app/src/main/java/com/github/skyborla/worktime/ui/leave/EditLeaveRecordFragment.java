@@ -15,13 +15,13 @@ import java.util.Set;
 /**
  * Created by Sebastian on 19.09.2014.
  */
-public class NewLeaveRecordFragment extends LeaveRecordFormFragment {
+public class EditLeaveRecordFragment extends LeaveRecordFormFragment {
 
-    public static NewLeaveRecordFragment newInstance() {
-        return new NewLeaveRecordFragment();
+    public static EditLeaveRecordFragment newInstance(MetaLeaveRecord metaLeaveRecord) {
+        return new EditLeaveRecordFragment();
     }
 
-    public NewLeaveRecordFragment() {
+    public EditLeaveRecordFragment() {
         // Required empty public constructor
     }
 

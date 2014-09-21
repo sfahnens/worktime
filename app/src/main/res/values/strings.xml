@@ -2,44 +2,35 @@
 <resources>
 
     <string name="app_name">Arbeitszeit</string>
-
     <string name="action_new_work_record">Arbeit Eintragen</string>
     <string name="action_new_leave_record">Urlaub Eintragen</string>
     <string name="action_send_email">E-Mail Senden</string>
-
     <string name="dialog_work_record_date">Datum:</string>
-
     <string name="dialog_leave_record_start_date">Startdatum (einschließlich):</string>
     <string name="dialog_leave_record_end_date">Enddatum (einschließlich):</string>
     <string name="dialog_leave_record_reason">Grund:</string>
     <string name="dialog_leave_record_workday">Nur an Werktagen</string>
-
     <string name="leave_reason">Urlaubsgrund</string>
     <string name="leave_reason_holiday">Feiertag</string>
     <string name="leave_reason_vacation">Urlaub</string>
     <string name="leave_reason_leave">Freier Tag</string>
     <string name="leave_reason_health">Krankheit</string>
     <string name="leave_reason_other">Sonstiges</string>
-
     <string name="dialog_generic_submit">Speichern</string>
     <string name="dialog_generic_abort">Abbrechen</string>
-
     <string name="validate_missing_fields_message">Der Eintrag kann nur gespeichert werden, wenn alle Felder ausgefüllt sind.</string>
     <string name="validate_time_end_before_start">Die Endzeit muss nach der Startzeit sein - Logisch!</string>
     <string name="validate_date_end_before_start">Das Enddatum darf nicht vor dem Startdatum liegen.</string>
     <string name="validate_all_days_on_weekend">Fehler beim Speichern: Sind alle Tage am Wochenende?</string>
-
     <string name="context_leave">Urlaub</string>
     <string name="records_context_edit">Bearbeiten</string>
     <string name="records_context_delete">Löschen</string>
     <string name="records_context_back">Zurück</string>
-
     <string name="action_edit_record">Eintrag bearbeiten</string>
-
     <string name="dialog_confirm_delete_header">Wirklich löschen?</string>
     <string name="dialog_delete_confirm">Löschen</string>
     <string name="undo_delete">Gelöscht</string>
     <string name="undo">Rückgängig</string>
-
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 
 </resources>

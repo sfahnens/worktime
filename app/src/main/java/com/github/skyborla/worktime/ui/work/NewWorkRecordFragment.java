@@ -53,7 +53,7 @@ public class NewWorkRecordFragment extends WorkRecordFormFragment {
                 workRecord.setStartTime(startTime.getTime());
                 workRecord.setEndTime(endTime.getTime());
 
-                mListener.getDatasource().persistWorkRecord(workRecord);
+                mListener.getDataSource().persistWorkRecord(workRecord);
                 mListener.modelChanged(date.getDate());
                 dialog.dismiss();
             }

@@ -1,28 +1,26 @@
 package com.github.skyborla.worktime;
 
-import android.app.AlertDialog;
 import android.app.Fragment;
 import android.app.FragmentManager;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.Parcelable;
 import android.support.v13.app.FragmentPagerAdapter;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.view.ViewPager;
 import android.view.Menu;
 import android.view.MenuItem;
 
-import com.cocosw.undobar.UndoBarController;
 import com.github.skyborla.worktime.model.DataSource;
 import com.github.skyborla.worktime.model.LeaveRecord;
 import com.github.skyborla.worktime.model.MetaLeaveRecord;
 import com.github.skyborla.worktime.model.WorkRecord;
+import com.github.skyborla.worktime.ui.leave.DeleteLeaveRecordHelper;
 import com.github.skyborla.worktime.ui.leave.NewLeaveRecordFragment;
 import com.github.skyborla.worktime.ui.list.RecordsFragment;
+import com.github.skyborla.worktime.ui.work.DeleteWorkRecordHelper;
 import com.github.skyborla.worktime.ui.work.EditWorkRecordFragment;
 import com.github.skyborla.worktime.ui.work.NewWorkRecordFragment;
 
@@ -169,36 +167,8 @@ public class Worktime extends FragmentActivity implements RecordsFragment.Record
 
     @Override
     public void beginDeleteWorkRecord(final WorkRecord workRecord) {
-
-        String message = "\n \u2022 " + FormatUtil.DATE_FORMAT_MEDIUM.format(workRecord.getDate());
-        message += " (" + FormatUtil.formatTimes(workRecord) + ")\n";
-
-        new AlertDialog.Builder(this)
-                .setTitle(R.string.dialog_confirm_delete_header)
-                .setMessage(message)
-                .setNegativeButton(R.string.dialog_generic_abort, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                    }
-                })
-                .setPositiveButton(R.string.dialog_delete_confirm, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        modelChanged(dataSource.deleteWorkRecord(workRecord));
-
-                        new UndoBarController.UndoBar(Worktime.this)
-                                .message(R.string.undo_delete)
-                                .listener(new UndoBarController.UndoListener() {
-                                    @Override
-                                    public void onUndo(Parcelable parcelable) {
-                                        modelChanged(dataSource.persistWorkRecord(workRecord));
-                                    }
-                                })
-                                .duration(10000)
-                                .show(true);
-                    }
-                })
-                .create().show();
+        DeleteWorkRecordHelper helper = new DeleteWorkRecordHelper(workRecord, this, this);
+        helper.confirmAndDelete();
     }
 
     @Override
@@ -207,50 +177,16 @@ public class Worktime extends FragmentActivity implements RecordsFragment.Record
         MetaLeaveRecord toEdit = dataSource.getMetaLeaveRecord(leaveRecord);
         System.out.println(toEdit);
 
-
     }
 
     @Override
     public void beginDeleteLeaveRecord(final LeaveRecord leaveRecord) {
-        final MetaLeaveRecord metaLeaveRecord = getDatasource().getMetaLeaveRecord(leaveRecord);
-
-        String message = "\n \u2022 von: " + FormatUtil.DATE_FORMAT_MEDIUM.format(metaLeaveRecord.getStartDate());
-        message += "\n \u2022 bis: " + FormatUtil.DATE_FORMAT_MEDIUM.format(metaLeaveRecord.getEndDate());
-        message += "\n \u2022 Grund: " + getString(metaLeaveRecord.getReason().stringResource);
-        message += "\n";
-
-        new AlertDialog.Builder(this)
-                .setTitle(R.string.dialog_confirm_delete_header)
-                .setMessage(message)
-                .setNegativeButton(R.string.dialog_generic_abort, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                    }
-                })
-                .setPositiveButton(R.string.dialog_delete_confirm, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        Set<LocalDate> affectedMonth = dataSource.deleteLeaveRecord(leaveRecord);
-                        modelChanged(affectedMonth);
-
-                        new UndoBarController.UndoBar(Worktime.this)
-                                .message(R.string.undo_delete)
-                                .listener(new UndoBarController.UndoListener() {
-                                    @Override
-                                    public void onUndo(Parcelable parcelable) {
-                                        Set<LocalDate> affectedMonth = dataSource.persistLeaveRecord(metaLeaveRecord);
-                                        modelChanged(affectedMonth);
-                                    }
-                                })
-                                .duration(10000)
-                                .show(true);
-                    }
-                })
-                .create().show();
+        DeleteLeaveRecordHelper helper = new DeleteLeaveRecordHelper(leaveRecord, this, this);
+        helper.confirmAndDelete();
     }
 
     @Override
-    public DataSource getDatasource() {
+    public DataSource getDataSource() {
         return dataSource;
     }
 
