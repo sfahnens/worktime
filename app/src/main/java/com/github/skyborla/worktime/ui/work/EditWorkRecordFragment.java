@@ -8,13 +8,13 @@ import com.github.skyborla.worktime.model.WorkRecord;
 
 public class EditWorkRecordFragment extends WorkRecordFormFragment {
 
-    public static EditWorkRecordFragment newInstance(long id, String date, String startTime, String endTime) {
+    public static EditWorkRecordFragment newInstance(WorkRecord workRecord) {
         EditWorkRecordFragment fragment = new EditWorkRecordFragment();
         Bundle args = new Bundle();
-        args.putLong(ARG_ID, id);
-        args.putString(ARG_DATE, date);
-        args.putString(ARG_START_TIME, startTime);
-        args.putString(ARG_END_TIME, endTime);
+        args.putLong(ARG_ID, workRecord.getId());
+        args.putString(ARG_DATE, workRecord.getDate().toString());
+        args.putString(ARG_START_TIME, workRecord.getStartTime().toString());
+        args.putString(ARG_END_TIME, workRecord.getEndTime().toString());
         fragment.setArguments(args);
         return fragment;
     }

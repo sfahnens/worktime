@@ -4,12 +4,10 @@ import android.view.View;
 import android.widget.Toast;
 
 import com.github.skyborla.worktime.R;
-import com.github.skyborla.worktime.model.LeaveRecord;
 import com.github.skyborla.worktime.model.MetaLeaveRecord;
 
 import org.threeten.bp.LocalDate;
 
-import java.util.List;
 import java.util.Set;
 
 /**
@@ -36,12 +34,7 @@ public class NewLeaveRecordFragment extends LeaveRecordFormFragment {
                     return;
                 }
 
-                MetaLeaveRecord metaLeaveRecord = new MetaLeaveRecord();
-                metaLeaveRecord.setStartDate(startDate.getDate());
-                metaLeaveRecord.setEndDate(endDate.getDate());
-                metaLeaveRecord.setReason(reason);
-                metaLeaveRecord.setWorkdays(workdays);
-
+                MetaLeaveRecord metaLeaveRecord = getMetaLeaveRecord();
                 Set<LocalDate> affectedMonths = mListener.getDataSource().persistLeaveRecord(metaLeaveRecord);
 
                 if (affectedMonths.isEmpty()) {
@@ -51,12 +44,6 @@ public class NewLeaveRecordFragment extends LeaveRecordFormFragment {
 
                 mListener.modelChanged(affectedMonths);
                 dismiss();
-
-                // XXX
-                List<LeaveRecord> leaveRecords = mListener.getDataSource().getLeaveRecords(null);
-                for (LeaveRecord record : leaveRecords) {
-                    System.out.println(record);
-                }
             }
         };
     }

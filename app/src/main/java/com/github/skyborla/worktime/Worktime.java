@@ -15,9 +15,9 @@ import android.view.MenuItem;
 
 import com.github.skyborla.worktime.model.DataSource;
 import com.github.skyborla.worktime.model.LeaveRecord;
-import com.github.skyborla.worktime.model.MetaLeaveRecord;
 import com.github.skyborla.worktime.model.WorkRecord;
 import com.github.skyborla.worktime.ui.leave.DeleteLeaveRecordHelper;
+import com.github.skyborla.worktime.ui.leave.EditLeaveRecordFragment;
 import com.github.skyborla.worktime.ui.leave.NewLeaveRecordFragment;
 import com.github.skyborla.worktime.ui.list.RecordsFragment;
 import com.github.skyborla.worktime.ui.work.DeleteWorkRecordHelper;
@@ -36,7 +36,6 @@ import java.util.Set;
 
 public class Worktime extends FragmentActivity implements RecordsFragment.RecordsFragmentInteractionListener, ModelInteraction {
 
-
     public static final String PENDING_RECORD = "PENDING_RECORD";
     public static final String PENDING_DATE = "PENDING_DATE";
     public static final String PENDING_START_TIME = "PENDING_START_TIME";
@@ -44,28 +43,15 @@ public class Worktime extends FragmentActivity implements RecordsFragment.Record
 
     private DataSource dataSource;
 
-    /**
-     * The {@link android.support.v4.view.PagerAdapter} that will provide
-     * fragments for each of the sections. We use a
-     * {@link FragmentPagerAdapter} derivative, which will keep every
-     * loaded fragment in memory. If this becomes too memory intensive, it
-     * may be best to switch to a
-     * {@link android.support.v13.app.FragmentStatePagerAdapter}.
-     */
     SectionsPagerAdapter mSectionsPagerAdapter;
-
-    /**
-     * The {@link ViewPager} that will host the section contents.
-     */
     ViewPager mViewPager;
+
     private List<LocalDate> months;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_worktime);
-
-        NewLeaveRecordFragment.newInstance().show(getSupportFragmentManager(), "newLeaveRecord");
 
         SharedPreferences pref = getPreferences(Context.MODE_PRIVATE);
 
@@ -85,7 +71,6 @@ public class Worktime extends FragmentActivity implements RecordsFragment.Record
         }
 
         months = dataSource.getMonths();
-
 
         // Create the adapter that will return a fragment for each of the three
         // primary sections of the activity.
@@ -158,11 +143,8 @@ public class Worktime extends FragmentActivity implements RecordsFragment.Record
     @Override
     public void beginEditWorkRecord(WorkRecord workRecord) {
         EditWorkRecordFragment
-                .newInstance(workRecord.getId(),
-                        workRecord.getDate().toString(),
-                        workRecord.getStartTime().toString(),
-                        workRecord.getEndTime().toString())
-                .show(getSupportFragmentManager(), "editRecord");
+                .newInstance(workRecord)
+                .show(getSupportFragmentManager(), "editWorkRecord");
     }
 
     @Override
@@ -173,10 +155,9 @@ public class Worktime extends FragmentActivity implements RecordsFragment.Record
 
     @Override
     public void beginEditLeaveRecord(LeaveRecord leaveRecord) {
-
-        MetaLeaveRecord toEdit = dataSource.getMetaLeaveRecord(leaveRecord);
-        System.out.println(toEdit);
-
+        EditLeaveRecordFragment
+                .newInstance(dataSource.getMetaLeaveRecord(leaveRecord))
+                .show(getSupportFragmentManager(), "editLeaveRecord");
     }
 
     @Override

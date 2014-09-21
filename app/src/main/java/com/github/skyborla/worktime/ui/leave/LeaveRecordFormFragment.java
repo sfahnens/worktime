@@ -20,6 +20,7 @@ import android.widget.Toast;
 import com.github.skyborla.worktime.ModelInteraction;
 import com.github.skyborla.worktime.R;
 import com.github.skyborla.worktime.model.LeaveReason;
+import com.github.skyborla.worktime.model.MetaLeaveRecord;
 import com.github.skyborla.worktime.ui.control.DateControl;
 import com.github.skyborla.worktime.ui.control.FormUpdateListener;
 
@@ -29,16 +30,16 @@ import java.util.Arrays;
 
 public abstract class LeaveRecordFormFragment extends DialogFragment implements FormUpdateListener {
 
-    private static final String ARG_BASE_ID = "base_id";
-    private static final String ARG_START_DATE = "start_date";
-    private static final String ARG_END_DATE = "end_date";
-    private static final String ARG_REASON = "reason";
-    private static final String ARG_WORKDAYS = "workdays";
-    public static final LeaveReason DEFAULT_LEAVE_REASON = LeaveReason.VACATION;
+    protected static final String ARG_ID = "id";
+    protected static final String ARG_START_DATE = "start_date";
+    protected static final String ARG_END_DATE = "end_date";
+    protected static final String ARG_REASON = "reason";
+    protected static final String ARG_WORKDAYS = "workdays";
+    protected static final LeaveReason DEFAULT_LEAVE_REASON = LeaveReason.VACATION;
 
     protected ModelInteraction mListener;
 
-    protected long baseId;
+    protected long id;
     protected DateControl startDate;
     protected DateControl endDate;
     protected LeaveReason reason;
@@ -62,8 +63,11 @@ public abstract class LeaveRecordFormFragment extends DialogFragment implements 
         endDate = new DateControl(getActivity());
 
         if (getArguments() != null) {
+            id = getArguments().getLong(ARG_ID);
             startDate.setDate(getArguments().getString(ARG_START_DATE));
             endDate.setDate(getArguments().getString(ARG_END_DATE));
+            reason = LeaveReason.valueOf(getArguments().getString(ARG_REASON));
+            workdays = getArguments().getBoolean(ARG_WORKDAYS);
 
         } else {
             startDate.setDate(LocalDate.now());
@@ -209,6 +213,17 @@ public abstract class LeaveRecordFormFragment extends DialogFragment implements 
             return false;
         }
         return true;
+    }
+
+    protected MetaLeaveRecord getMetaLeaveRecord() {
+        MetaLeaveRecord metaLeaveRecord = new MetaLeaveRecord();
+        metaLeaveRecord.setId(id);
+        metaLeaveRecord.setStartDate(startDate.getDate());
+        metaLeaveRecord.setEndDate(endDate.getDate());
+        metaLeaveRecord.setReason(reason);
+        metaLeaveRecord.setWorkdays(workdays);
+
+        return metaLeaveRecord;
     }
 
     protected abstract View.OnClickListener getOnSubmitListener();

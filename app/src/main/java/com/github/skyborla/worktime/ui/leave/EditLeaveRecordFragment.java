@@ -1,15 +1,12 @@
 package com.github.skyborla.worktime.ui.leave;
 
+import android.os.Bundle;
 import android.view.View;
-import android.widget.Toast;
 
-import com.github.skyborla.worktime.R;
-import com.github.skyborla.worktime.model.LeaveRecord;
 import com.github.skyborla.worktime.model.MetaLeaveRecord;
 
 import org.threeten.bp.LocalDate;
 
-import java.util.List;
 import java.util.Set;
 
 /**
@@ -18,7 +15,17 @@ import java.util.Set;
 public class EditLeaveRecordFragment extends LeaveRecordFormFragment {
 
     public static EditLeaveRecordFragment newInstance(MetaLeaveRecord metaLeaveRecord) {
-        return new EditLeaveRecordFragment();
+        EditLeaveRecordFragment fragment = new EditLeaveRecordFragment();
+        Bundle args = new Bundle();
+
+        args.putLong(ARG_ID, metaLeaveRecord.getId());
+        args.putString(ARG_START_DATE, metaLeaveRecord.getStartDate().toString());
+        args.putString(ARG_END_DATE, metaLeaveRecord.getEndDate().toString());
+        args.putString(ARG_REASON, metaLeaveRecord.getReason().toString());
+        args.putBoolean(ARG_WORKDAYS, metaLeaveRecord.isWorkdays());
+
+        fragment.setArguments(args);
+        return fragment;
     }
 
     public EditLeaveRecordFragment() {
@@ -36,27 +43,12 @@ public class EditLeaveRecordFragment extends LeaveRecordFormFragment {
                     return;
                 }
 
-                MetaLeaveRecord metaLeaveRecord = new MetaLeaveRecord();
-                metaLeaveRecord.setStartDate(startDate.getDate());
-                metaLeaveRecord.setEndDate(endDate.getDate());
-                metaLeaveRecord.setReason(reason);
-                metaLeaveRecord.setWorkdays(workdays);
+                MetaLeaveRecord metaLeaveRecord = getMetaLeaveRecord();
 
-                Set<LocalDate> affectedMonths = mListener.getDataSource().persistLeaveRecord(metaLeaveRecord);
-
-                if (affectedMonths.isEmpty()) {
-                    Toast.makeText(getActivity(), R.string.validate_all_days_on_weekend, Toast.LENGTH_SHORT).show();
-                    return;
-                }
-
+                Set<LocalDate> affectedMonths = mListener.getDataSource().updateLeaveRecord(metaLeaveRecord);
                 mListener.modelChanged(affectedMonths);
-                dismiss();
 
-                // XXX
-                List<LeaveRecord> leaveRecords = mListener.getDataSource().getLeaveRecords(null);
-                for (LeaveRecord record : leaveRecords) {
-                    System.out.println(record);
-                }
+                dismiss();
             }
         };
     }
