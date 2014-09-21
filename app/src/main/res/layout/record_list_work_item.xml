@@ -9,17 +9,21 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:id="@+id/record_list_day"
+        android:textSize="@dimen/list_standard_text_size" />
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:id="@+id/record_list_date"
-        android:textSize="18sp"
+        android:textSize="@dimen/list_standard_text_size"
         android:layout_weight="0.5" />
-
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/record_list_time"
         android:layout_weight="0.5"
-        android:textSize="18sp"
+        android:textSize="@dimen/list_standard_text_size"
         android:gravity="right" />
 
     <TextView

@@ -11,6 +11,7 @@ import android.widget.TextView;
 
 import com.github.skyborla.worktime.FormatUtil;
 import com.github.skyborla.worktime.R;
+import com.github.skyborla.worktime.Worktime;
 import com.github.skyborla.worktime.model.WorkRecord;
 
 import org.threeten.bp.Duration;
@@ -22,6 +23,7 @@ import org.threeten.bp.LocalTime;
 public class WorkRecordItem implements ListViewItem {
 
     public static class WorkRecordHolder {
+        public TextView dayText;
         public TextView dateText;
         public TextView durationText;
         public TextView timeText;
@@ -47,16 +49,20 @@ public class WorkRecordItem implements ListViewItem {
             row = inflater.inflate(R.layout.record_list_work_item, parent, false);
 
             holder = new WorkRecordHolder();
+            holder.dayText = (TextView) row.findViewById(R.id.record_list_day);
             holder.dateText = (TextView) row.findViewById(R.id.record_list_date);
             holder.durationText = (TextView) row.findViewById(R.id.record_list_reason);
             holder.timeText = (TextView) row.findViewById(R.id.record_list_time);
 
+            holder.dayText.setWidth(Worktime.DATE_COLUMN_WIDTH);
+            
             row.setTag(holder);
         } else {
             holder = (WorkRecordHolder) row.getTag();
         }
 
-        holder.dateText.setText(FormatUtil.DATE_FORMAT_MEDIUM.format(workRecord.getDate()));
+        holder.dayText.setText(FormatUtil.DATE_FORMAT_DAY.format(workRecord.getDate()));
+        holder.dateText.setText(FormatUtil.DATE_FORMAT_SHORT.format(workRecord.getDate()));
 
         Duration duration = Duration.between(workRecord.getStartTime(), workRecord.getEndTime());
         LocalTime hackedDuration = LocalTime.of(0, 0).plus(duration);

@@ -10,6 +10,8 @@ import android.widget.TextView;
 
 import com.github.skyborla.worktime.FormatUtil;
 import com.github.skyborla.worktime.R;
+import com.github.skyborla.worktime.Worktime;
+import com.github.skyborla.worktime.model.LeaveReason;
 import com.github.skyborla.worktime.model.LeaveRecord;
 
 /**
@@ -18,6 +20,7 @@ import com.github.skyborla.worktime.model.LeaveRecord;
 public class LeaveRecordItem implements ListViewItem {
 
     public static class LeaveRecordHolder {
+        public TextView dayText;
         public TextView dateText;
         public TextView reasonText;
     }
@@ -42,16 +45,28 @@ public class LeaveRecordItem implements ListViewItem {
             row = inflater.inflate(R.layout.record_list_leave_item, parent, false);
 
             holder = new LeaveRecordHolder();
+            holder.dayText = (TextView) row.findViewById(R.id.record_list_day);
             holder.dateText = (TextView) row.findViewById(R.id.record_list_date);
             holder.reasonText = (TextView) row.findViewById(R.id.record_list_reason);
+
+            holder.dayText.setWidth(Worktime.DATE_COLUMN_WIDTH);
 
             row.setTag(holder);
         } else {
             holder = (LeaveRecordHolder) row.getTag();
         }
 
-        holder.dateText.setText(FormatUtil.DATE_FORMAT_MEDIUM.format(leaveRecord.getDate()));
+        holder.dayText.setText(FormatUtil.DATE_FORMAT_DAY.format(leaveRecord.getDate()));
+        holder.dateText.setText(FormatUtil.DATE_FORMAT_SHORT.format(leaveRecord.getDate()));
         holder.reasonText.setText(leaveRecord.getReason().stringResource);
+
+        int color;
+        if (leaveRecord.getReason() == LeaveReason.HOLIDAY) {
+            color = activity.getResources().getColor(android.R.color.holo_purple);
+        } else {
+            color = activity.getResources().getColor(android.R.color.holo_green_dark);
+        }
+        holder.reasonText.setTextColor(color);
 
         return row;
     }

@@ -12,6 +12,7 @@ import android.support.v4.app.FragmentActivity;
 import android.support.v4.view.ViewPager;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.TextView;
 
 import com.github.skyborla.worktime.model.DataSource;
 import com.github.skyborla.worktime.model.LeaveRecord;
@@ -29,12 +30,15 @@ import org.threeten.bp.LocalDate;
 import java.io.File;
 import java.io.IOException;
 import java.sql.SQLException;
+import java.text.DateFormatSymbols;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
 
 public class Worktime extends FragmentActivity implements RecordsFragment.RecordsFragmentInteractionListener, ModelInteraction {
+
+    public static int DATE_COLUMN_WIDTH;
 
     public static final String PENDING_RECORD = "PENDING_RECORD";
     public static final String PENDING_DATE = "PENDING_DATE";
@@ -62,7 +66,6 @@ public class Worktime extends FragmentActivity implements RecordsFragment.Record
                     pref.getString(PENDING_END_TIME, "")).show(getSupportFragmentManager(), "newWorkRecord");
         }
 
-
         dataSource = new DataSource(this);
         try {
             dataSource.open();
@@ -86,6 +89,8 @@ public class Worktime extends FragmentActivity implements RecordsFragment.Record
         } else if (months.size() > 0) {
             mViewPager.setCurrentItem(months.size() - 1);
         }
+
+        initializeDayColumnListWidth();
     }
 
     @Override
@@ -200,7 +205,10 @@ public class Worktime extends FragmentActivity implements RecordsFragment.Record
         displayCandidates.addAll(changed);
         displayCandidates.retainAll(months);
 
-        LocalDate firstDisplayCandidate = displayCandidates.iterator().next();
+        LocalDate firstDisplayCandidate = null;
+        if (!displayCandidates.isEmpty()) {
+            displayCandidates.iterator().next();
+        }
 
         // current month changed -> do nothing
         if (displayCandidates.contains(currentMonth)) {
@@ -231,6 +239,20 @@ public class Worktime extends FragmentActivity implements RecordsFragment.Record
         Set<LocalDate> affectedMonth = new HashSet<LocalDate>();
         affectedMonth.add(date);
         modelChanged(affectedMonth);
+    }
+
+    private void initializeDayColumnListWidth() {
+        int max = 0;
+        for (String s : DateFormatSymbols.getInstance().getShortWeekdays()) {
+            TextView v = new TextView(this);
+            v.setTextSize(18);
+            v.setText(s);
+            v.measure(0, 0);
+
+            max = Math.max(max, v.getMeasuredWidth());
+        }
+
+        DATE_COLUMN_WIDTH = max + 8;
     }
 
     /**

@@ -1,5 +1,6 @@
 package com.github.skyborla.worktime.ui.list;
 
+import com.github.skyborla.worktime.model.LeaveReason;
 import com.github.skyborla.worktime.model.LeaveRecord;
 import com.github.skyborla.worktime.model.WorkRecord;
 
@@ -21,6 +22,7 @@ class RecordsListProcessor {
 
     private final LinkedList<WorkRecord> workRecords = new LinkedList<WorkRecord>();
     private final LinkedList<LeaveRecord> leaveRecords = new LinkedList<LeaveRecord>();
+    private final List<LocalDate> holidays;
 
     private long totalWorkedSeconds = 0;
     private Set<LocalDate> workedDays = new HashSet<LocalDate>();
@@ -29,9 +31,11 @@ class RecordsListProcessor {
 
     private List<ListViewItem> elements = new ArrayList<ListViewItem>();
 
-    public RecordsListProcessor(List<WorkRecord> workRecords, List<LeaveRecord> leaveRecords) {
+    public RecordsListProcessor(List<WorkRecord> workRecords, List<LeaveRecord> leaveRecords, List<LocalDate> holidays) {
         this.workRecords.addAll(workRecords);
         this.leaveRecords.addAll(leaveRecords);
+
+        this.holidays = holidays;
     }
 
     public void process() {
@@ -76,6 +80,11 @@ class RecordsListProcessor {
 
     private void append(LeaveRecord leaveRecord) {
         checkAppendHeader(leaveRecord.getDate());
+
+        //  holidays override other leave records
+        if (leaveRecord.getReason() != LeaveReason.HOLIDAY && holidays.contains(leaveRecord.getDate())) {
+            return;
+        }
 
         elements.add(new LeaveRecordItem(leaveRecord));
     }

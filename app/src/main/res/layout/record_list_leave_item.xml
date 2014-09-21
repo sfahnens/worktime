@@ -9,8 +9,14 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:id="@+id/record_list_day"
+        android:textSize="@dimen/list_standard_text_size" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:id="@+id/record_list_date"
-        android:textSize="18sp"
+        android:textSize="@dimen/list_standard_text_size"
         android:layout_weight="1" />
 
     <TextView
@@ -18,7 +24,6 @@
         android:layout_height="wrap_content"
         android:id="@+id/record_list_reason"
         android:paddingStart="16dp"
-        android:textColor="@android:color/holo_green_dark"
         android:textSize="17sp"
         android:textStyle="bold"
         android:gravity="right" />

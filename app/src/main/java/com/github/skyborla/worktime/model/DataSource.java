@@ -10,12 +10,9 @@ import com.github.skyborla.worktime.FormatUtil;
 import org.threeten.bp.DayOfWeek;
 import org.threeten.bp.LocalDate;
 import org.threeten.bp.LocalTime;
-import org.threeten.bp.format.DateTimeFormatter;
 import org.threeten.bp.temporal.ChronoUnit;
 
 import java.sql.SQLException;
-import java.text.Format;
-import java.text.Normalizer;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
@@ -283,6 +280,24 @@ public class DataSource {
 
         cursor.close();
         return workRecords;
+    }
+
+    public List<LocalDate> getHolidays(String month) {
+        List<LocalDate> holidays = new ArrayList<LocalDate>();
+
+        String table = DB.TABLE_LEAVE_RECORDS;
+        String[] columns = new String[]{DB.COL_DATE};
+        String where = DB.COL_MONTH + " = " + month + " and " + DB.COL_REASON + " = '" + LeaveReason.HOLIDAY.toString() + "'";
+        Cursor cursor = database.query(table, columns, where, null, null, null, null);
+
+        cursor.moveToFirst();
+        while (!cursor.isAfterLast()) {
+            holidays.add(LocalDate.parse(cursor.getString(0)));
+            cursor.moveToNext();
+        }
+
+        cursor.close();
+        return holidays;
     }
 
 

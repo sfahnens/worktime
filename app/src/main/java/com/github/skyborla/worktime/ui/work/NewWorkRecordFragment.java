@@ -9,6 +9,8 @@ import com.github.skyborla.worktime.R;
 import com.github.skyborla.worktime.Worktime;
 import com.github.skyborla.worktime.model.WorkRecord;
 
+import org.threeten.bp.LocalDate;
+
 public class NewWorkRecordFragment extends WorkRecordFormFragment {
 
     public static NewWorkRecordFragment newInstance() {
@@ -53,8 +55,8 @@ public class NewWorkRecordFragment extends WorkRecordFormFragment {
                 workRecord.setStartTime(startTime.getTime());
                 workRecord.setEndTime(endTime.getTime());
 
-                mListener.getDataSource().persistWorkRecord(workRecord);
-                mListener.modelChanged(date.getDate());
+                LocalDate changed = mListener.getDataSource().persistWorkRecord(workRecord);
+                mListener.modelChanged(changed);
                 dialog.dismiss();
             }
         };
