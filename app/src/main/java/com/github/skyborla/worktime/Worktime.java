@@ -273,6 +273,8 @@ public class Worktime extends FragmentActivity implements RecordsFragment.Record
 
             if (fragment != null) {
                 fragment.onRecordsUpdated();
+            } else {
+                System.out.println("FRAGMENT null " + date);
             }
         }
 
@@ -336,8 +338,7 @@ public class Worktime extends FragmentActivity implements RecordsFragment.Record
 
         @Override
         public long getItemId(int position) {
-            LocalDate month = months.get(position);
-            return Long.valueOf(FormatUtil.DATE_FORMAT_DB_MONTH.format(month));
+            return months.get(position).hashCode();
         }
 
         @Override
