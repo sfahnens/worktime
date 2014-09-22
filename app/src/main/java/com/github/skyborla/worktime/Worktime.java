@@ -13,7 +13,9 @@ import android.support.v4.view.ViewPager;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import com.github.skyborla.worktime.export.RecordsExporter;
 import com.github.skyborla.worktime.model.DataSource;
 import com.github.skyborla.worktime.model.LeaveRecord;
 import com.github.skyborla.worktime.model.WorkRecord;
@@ -25,10 +27,11 @@ import com.github.skyborla.worktime.ui.work.DeleteWorkRecordHelper;
 import com.github.skyborla.worktime.ui.work.EditWorkRecordFragment;
 import com.github.skyborla.worktime.ui.work.NewWorkRecordFragment;
 
+import org.jdeferred.DoneCallback;
+import org.jdeferred.FailCallback;
 import org.threeten.bp.LocalDate;
+import org.threeten.bp.LocalDateTime;
 
-import java.io.File;
-import java.io.IOException;
 import java.sql.SQLException;
 import java.text.DateFormatSymbols;
 import java.util.HashSet;
@@ -117,8 +120,6 @@ public class Worktime extends FragmentActivity implements RecordsFragment.Record
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        int id = item.getItemId();
-
         switch (item.getItemId()) {
             case R.id.action_new_work_record:
                 NewWorkRecordFragment.newInstance().show(getSupportFragmentManager(), "newWorkRecord");
@@ -129,19 +130,33 @@ public class Worktime extends FragmentActivity implements RecordsFragment.Record
                 return true;
 
             case R.id.action_send_email:
-                try {
-                    File temp = File.createTempFile("asd", "bsd", getCacheDir());
+                RecordsExporter exporter = new RecordsExporter(this, dataSource);
+                exporter.execute();
+                exporter.promise().done(new DoneCallback<Uri>() {
+                    @Override
+                    public void onDone(Uri uri) {
+                        System.out.println("DONE");
 
-                    Intent intent = new Intent(Intent.ACTION_SEND);
-                    intent.setType("application/octet-stream");
-                    intent.putExtra(Intent.EXTRA_STREAM, Uri.fromFile(temp));
-                    startActivity(Intent.createChooser(intent, "Email senden"));
+                        String text = "Arbeitszeit Export " + LocalDateTime.now().toString();
 
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
+                        Intent sendIntent = new Intent(Intent.ACTION_SEND);
+                        sendIntent.setType("application/octet-stream");
+                        sendIntent.putExtra(Intent.EXTRA_STREAM, uri);
+                        sendIntent.putExtra(Intent.EXTRA_SUBJECT, text);
+                        sendIntent.putExtra(Intent.EXTRA_TEXT, text);
+                        sendIntent.putExtra(Intent.EXTRA_TITLE, text);
+                        startActivity(Intent.createChooser(sendIntent, "Email senden"));
+                    }
+                }).fail(new FailCallback<Throwable>() {
+                    @Override
+                    public void onFail(Throwable result) {
+                        Toast.makeText(Worktime.this, R.string.export_failed, Toast.LENGTH_SHORT).show();
+                        result.printStackTrace();
+                    }
+                });
                 return true;
         }
+
         return super.onOptionsItemSelected(item);
     }
 
@@ -207,7 +222,7 @@ public class Worktime extends FragmentActivity implements RecordsFragment.Record
 
         LocalDate firstDisplayCandidate = null;
         if (!displayCandidates.isEmpty()) {
-            displayCandidates.iterator().next();
+            firstDisplayCandidate = displayCandidates.iterator().next();
         }
 
         // current month changed -> do nothing

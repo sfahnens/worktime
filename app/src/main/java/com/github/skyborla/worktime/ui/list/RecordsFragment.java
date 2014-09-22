@@ -103,7 +103,6 @@ public class RecordsFragment extends Fragment {
         List<LeaveRecord> leaveRecords = dataSource.getLeaveRecords(month);
         List<LocalDate> holidays = dataSource.getHolidays(month);
         RecordsListProcessor processor = new RecordsListProcessor(workRecords, leaveRecords, holidays);
-
         processor.process();
 
         adapter = new RecordsAdapter(getActivity(), processor.getElements());

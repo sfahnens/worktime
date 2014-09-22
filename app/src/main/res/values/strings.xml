@@ -32,5 +32,6 @@
     <string name="undo_delete">Gelöscht</string>
     <string name="undo">Rückgängig</string>
     <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="export_failed">Erstellen der Datei fehlgeschlagen!</string>
 
 </resources>
