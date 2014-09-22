@@ -26,6 +26,8 @@ public final class FormatUtil {
 
     public final static DateTimeFormatter DATE_FORMAT_FILE = DateTimeFormatter.ofPattern("YYYY-MM-dd_HH-mm-ss-SSS");
 
+    public final static DateTimeFormatter DATE_TIME_FORMATTER_FULL = DateTimeFormatter.ofPattern("HH:mm dd.MM.YYYY");
+
     public static String formatTimes(WorkRecord workRecord) {
 
         String startTime = FormatUtil.TIME_FORMAT.format(workRecord.getStartTime());

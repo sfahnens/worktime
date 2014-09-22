@@ -137,7 +137,7 @@ public class Worktime extends FragmentActivity implements RecordsFragment.Record
                     public void onDone(Uri uri) {
                         System.out.println("DONE");
 
-                        String text = "Arbeitszeit Export " + LocalDateTime.now().toString();
+                        String text = "Arbeitszeit Export " + LocalDateTime.now().format(FormatUtil.DATE_TIME_FORMATTER_FULL);
 
                         Intent sendIntent = new Intent(Intent.ACTION_SEND);
                         sendIntent.setType("application/octet-stream");
