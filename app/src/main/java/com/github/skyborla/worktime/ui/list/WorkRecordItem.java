@@ -14,9 +14,6 @@ import com.github.skyborla.worktime.R;
 import com.github.skyborla.worktime.Worktime;
 import com.github.skyborla.worktime.model.WorkRecord;
 
-import org.threeten.bp.Duration;
-import org.threeten.bp.LocalTime;
-
 /**
  * Created by Sebastian on 20.09.2014.
  */
@@ -55,7 +52,7 @@ public class WorkRecordItem implements ListViewItem {
             holder.timeText = (TextView) row.findViewById(R.id.record_list_time);
 
             holder.dayText.setWidth(Worktime.DATE_COLUMN_WIDTH);
-            
+
             row.setTag(holder);
         } else {
             holder = (WorkRecordHolder) row.getTag();
@@ -64,9 +61,8 @@ public class WorkRecordItem implements ListViewItem {
         holder.dayText.setText(FormatUtil.DATE_FORMAT_DAY.format(workRecord.getDate()));
         holder.dateText.setText(FormatUtil.DATE_FORMAT_SHORT.format(workRecord.getDate()));
 
-        Duration duration = Duration.between(workRecord.getStartTime(), workRecord.getEndTime());
-        LocalTime hackedDuration = LocalTime.of(0, 0).plus(duration);
-        holder.durationText.setText("(" + FormatUtil.TIME_FORMAT.format(hackedDuration) + ")");
+        String duration = FormatUtil.formatDuration(workRecord);
+        holder.durationText.setText("(" + duration + ")");
 
         holder.timeText.setText(FormatUtil.formatTimes(workRecord));
 

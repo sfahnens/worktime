@@ -1,7 +1,10 @@
 package com.github.skyborla.worktime;
 
+import android.content.Context;
+
 import com.github.skyborla.worktime.model.WorkRecord;
 
+import org.threeten.bp.Duration;
 import org.threeten.bp.LocalDate;
 import org.threeten.bp.LocalTime;
 import org.threeten.bp.format.DateTimeFormatter;
@@ -64,5 +67,31 @@ public final class FormatUtil {
     public static LocalDate parseDBMonthFormat(String dbFormatted) {
         return LocalDate.of(Integer.valueOf(dbFormatted.substring(0, 4)),
                 Integer.valueOf(dbFormatted.substring(4)), 1);
+    }
+
+    public static String formatNaturalLanguageDuration(Context context, int seconds) {
+        int h = (int) seconds / 3600;
+        int m = (int) (seconds / 60) % 60;
+
+        String minutes = (m == 0) ? "" : context.getResources().getQuantityString(R.plurals.total_worktime_minutes, m, m) + " ";
+        String hours = (h == 0) ? "" : context.getResources().getQuantityString(R.plurals.total_worktime_hours, h, h) + " ";
+
+        return hours + minutes;
+    }
+
+    public static String formatDuration(WorkRecord workRecord) {
+        return formatDuration(workRecord.getStartTime(), workRecord.getEndTime());
+    }
+
+    public static String formatDuration(LocalTime start, LocalTime end) {
+        Duration duration = Duration.between(start, end);
+        return formatDuration((int) duration.getSeconds());
+    }
+
+    public static String formatDuration(int seconds) {
+        int h = (int) seconds / 3600;
+        int m = (int) (seconds / 60) % 60;
+
+        return String.format("%02d:%02d", h, m);
     }
 }

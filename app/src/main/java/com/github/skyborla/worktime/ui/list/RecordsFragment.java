@@ -18,6 +18,7 @@ import com.github.skyborla.worktime.FormatUtil;
 import com.github.skyborla.worktime.R;
 import com.github.skyborla.worktime.model.DataSource;
 import com.github.skyborla.worktime.model.LeaveRecord;
+import com.github.skyborla.worktime.model.Summary;
 import com.github.skyborla.worktime.model.WorkRecord;
 
 import org.threeten.bp.LocalDate;
@@ -108,21 +109,18 @@ public class RecordsFragment extends Fragment {
         adapter = new RecordsAdapter(getActivity(), processor.getElements());
         recordsList.setAdapter(adapter);
 
-        if (processor.getTotalWorkedSeconds() == 0) {
+        Summary recodsSummary = processor.getSummary();
+        if (recodsSummary.getTotalWorkedSeconds() == 0) {
             summary.setText("Diesen Monat nicht gearbeitet.");
 
         } else {
 
-            int h = processor.getWorkedHours();
-            int m = processor.getWorkedMinutes();
-            int d = processor.getWorkedDays();
+            String duration = FormatUtil.formatNaturalLanguageDuration(getActivity(), recodsSummary.getTotalWorkedSeconds());
 
-            String minutes = (m == 0) ? "" : getResources().getQuantityString(R.plurals.total_worktime_minutes, m, m) + " ";
-            String hours = (h == 0) ? "" : getResources().getQuantityString(R.plurals.total_worktime_hours, h, h) + " ";
-
+            int d = recodsSummary.getWorkedDays();
             String days = getResources().getQuantityString(R.plurals.total_worktime_days, d, d);
 
-            summary.setText("Gesamt: " + hours + minutes + "an " + days + ".");
+            summary.setText("Gesamt: " + duration + "an " + days + ".");
         }
     }
 
