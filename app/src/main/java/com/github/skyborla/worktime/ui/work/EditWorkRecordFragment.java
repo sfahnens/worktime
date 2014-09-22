@@ -6,6 +6,10 @@ import android.view.View;
 import com.github.skyborla.worktime.R;
 import com.github.skyborla.worktime.model.WorkRecord;
 
+import org.threeten.bp.LocalDate;
+
+import java.util.Set;
+
 public class EditWorkRecordFragment extends WorkRecordFormFragment {
 
     public static EditWorkRecordFragment newInstance(WorkRecord workRecord) {
@@ -43,8 +47,8 @@ public class EditWorkRecordFragment extends WorkRecordFormFragment {
                 workRecord.setStartTime(startTime.getTime());
                 workRecord.setEndTime(endTime.getTime());
 
-                mListener.getDataSource().updateWorkRecord(workRecord);
-                mListener.modelChanged(date.getDate());
+                Set<LocalDate> changed = mListener.getDataSource().updateWorkRecord(workRecord);
+                mListener.modelChanged(changed);
 
                 dialog.dismiss();
             }

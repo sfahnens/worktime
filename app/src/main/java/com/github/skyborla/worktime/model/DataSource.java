@@ -103,12 +103,12 @@ public class DataSource {
 
         // add old month to affected month
         String table = DB.TABLE_WORK_RECORDS;
-        String[] columns = DB.WORK_RECORD_COLUMNS;
+        String[] columns = new String[]{DB.COL_MONTH};
         String where = DB.COL_ID + " = " + workRecord.getId();
         Cursor cursor = database.query(table, columns, where, null, null, null, null);
 
         cursor.moveToFirst();
-        affectedMonths.add(FormatUtil.parseDBMonthFormat(cursor.getString(0)));
+        affectedMonths.add(FormatUtil.parseDBMonthFormat(cursor.getString(0)).withDayOfMonth(1));
         cursor.close();
 
         // update record
