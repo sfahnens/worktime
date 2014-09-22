@@ -19,6 +19,7 @@ import com.github.skyborla.worktime.ui.control.TimeControl;
 
 import org.threeten.bp.LocalDate;
 import org.threeten.bp.LocalTime;
+import org.threeten.bp.temporal.ChronoUnit;
 
 /**
  * Created by Sebastian on 14.09.2014.
@@ -139,7 +140,10 @@ public abstract class WorkRecordFormFragment extends DialogFragment implements F
             return false;
         }
 
-        if (endTime.getTime().isBefore(startTime.getTime())) {
+        LocalTime startMinutes = startTime.getTime().truncatedTo(ChronoUnit.MINUTES);
+        LocalTime endMinutes = endTime.getTime().truncatedTo(ChronoUnit.MINUTES);
+
+        if (endMinutes.isBefore(startMinutes)) {
             Toast.makeText(getActivity(), R.string.validate_time_end_before_start, Toast.LENGTH_SHORT).show();
             return false;
         }

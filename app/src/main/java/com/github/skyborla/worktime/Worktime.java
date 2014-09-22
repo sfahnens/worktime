@@ -198,6 +198,7 @@ public class Worktime extends FragmentActivity implements RecordsFragment.Record
         try {
             currentMonth = months.get(mViewPager.getCurrentItem());
         } catch (Throwable t) {
+            System.out.println("MODEL CHANGED : cannot determine current month.");
         }
 
         months = dataSource.getMonths();
@@ -227,12 +228,16 @@ public class Worktime extends FragmentActivity implements RecordsFragment.Record
 
         // current month changed -> do nothing
         if (displayCandidates.contains(currentMonth)) {
+            System.out.println("MODEL CHANGED : Current Month modified, do nothing.");
             return;
         }
 
         // try to go to a visible changed page
         else if (firstDisplayCandidate != null) {
-            mViewPager.setCurrentItem(months.indexOf(firstDisplayCandidate));
+            int target = months.indexOf(firstDisplayCandidate);
+
+            System.out.println("MODEL CHANGED : Go to first display candidate (index) " + target);
+            mViewPager.setCurrentItem(target);
         }
 
         // ensure valid page (unrelated to change)
@@ -240,10 +245,13 @@ public class Worktime extends FragmentActivity implements RecordsFragment.Record
             LocalDate thisMonth = LocalDate.now().withDayOfMonth(1);
 
             if (currentMonth != null && months.contains(currentMonth)) {
+                System.out.println("MODEL CHANGED : WAT?.");
                 return;
             } else if (months.contains(thisMonth)) {
+                System.out.println("MODEL CHANGED : Go to this month.");
                 mViewPager.setCurrentItem(months.indexOf(thisMonth));
             } else {
+                System.out.println("MODEL CHANGED : Go to view zero.");
                 mViewPager.setCurrentItem(0);
             }
         }
@@ -297,7 +305,10 @@ public class Worktime extends FragmentActivity implements RecordsFragment.Record
 
         @Override
         public int getItemPosition(Object object) {
-            return months.indexOf(((RecordsFragment) object).getMonth());
+            String monthString = ((RecordsFragment) object).getMonth();
+            int position = months.indexOf(FormatUtil.parseDBMonthFormat(monthString));
+            System.out.println(monthString + "@" + position);
+            return position;
         }
 
         @Override
