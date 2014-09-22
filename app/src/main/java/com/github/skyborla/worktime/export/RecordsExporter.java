@@ -15,10 +15,12 @@ import org.threeten.bp.LocalDateTime;
 
 import java.io.File;
 import java.io.FilenameFilter;
+import java.io.IOException;
 import java.util.List;
 
 import jxl.Workbook;
 import jxl.write.WritableWorkbook;
+import jxl.write.WriteException;
 
 /**
  * Created by Sebastian on 21.09.2014.
@@ -37,7 +39,6 @@ public class RecordsExporter extends DeferredAsyncTask<Void, Void, Uri> {
 
     @Override
     protected Uri doInBackgroundSafe(Void... voids) throws Exception {
-        System.out.println("XXXXX");
         long start = System.currentTimeMillis();
 
         cleanupOldFiles();
@@ -47,28 +48,50 @@ public class RecordsExporter extends DeferredAsyncTask<Void, Void, Uri> {
         List<LocalDate> months = dataSource.getMonths();
 
         WritableWorkbook workbook = Workbook.createWorkbook(file);
-
-        // TODO split in years
-        MonthExporter exporter = new MonthExporter(context, workbook, "export");
-        for (LocalDate month : months) {
-            String formattedMonth = FormatUtil.DATE_FORMAT_DB_MONTH.format(month);
-
-            List<WorkRecord> workRecords = dataSource.getWorkRecords(formattedMonth);
-            List<LeaveRecord> leaveRecords = dataSource.getLeaveRecords(formattedMonth);
-            List<LocalDate> holidays = dataSource.getHolidays(formattedMonth);
-            exporter.writeMonth(month, workRecords, leaveRecords, holidays);
-
+        try {
+            exportMonths(months, workbook);
+            workbook.write();
+        } finally {
+            workbook.close();
         }
-        exporter.finalizeSheet();
-
-        workbook.write();
-        workbook.close();
-
 
         Uri uri = FileProvider.getUriForFile(context, "com.github.skyborla.worktime.records", file);
 
         System.out.println("EXPORT " + (System.currentTimeMillis() - start));
         return uri;
+    }
+
+    private void exportMonths(List<LocalDate> months, WritableWorkbook workbook) throws WriteException, IOException {
+        int lastYear = -1;
+        MonthExporter exporter = null;
+
+        for (LocalDate month : months) {
+
+            int thisYear = month.getYear();
+            if (thisYear != lastYear) {
+                if (exporter != null) {
+                    exporter.finalizeSheet();
+                }
+
+                exporter = new MonthExporter(context, workbook, Integer.toString(thisYear));
+                lastYear = thisYear;
+            }
+
+            appendMonth(exporter, month);
+        }
+
+        if (exporter != null) {
+            exporter.finalizeSheet();
+        }
+    }
+
+    private void appendMonth(MonthExporter exporter, LocalDate month) throws WriteException {
+        String formattedMonth = FormatUtil.DATE_FORMAT_DB_MONTH.format(month);
+
+        List<WorkRecord> workRecords = dataSource.getWorkRecords(formattedMonth);
+        List<LeaveRecord> leaveRecords = dataSource.getLeaveRecords(formattedMonth);
+        List<LocalDate> holidays = dataSource.getHolidays(formattedMonth);
+        exporter.writeMonth(month, workRecords, leaveRecords, holidays);
     }
 
     private void cleanupOldFiles() {
