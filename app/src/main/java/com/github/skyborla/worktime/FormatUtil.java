@@ -15,21 +15,21 @@ import org.threeten.bp.format.DateTimeParseException;
  */
 public final class FormatUtil {
 
-    public final static DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ofPattern("dd. MM. YYYY");
+    public final static DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ofPattern("dd. MM. yyyy");
     public final static DateTimeFormatter DATE_FORMAT_DAY = DateTimeFormatter.ofPattern("eee");
     public final static DateTimeFormatter DATE_FORMAT_MEDIUM = DateTimeFormatter.ofPattern("eee dd. MM.");
     public final static DateTimeFormatter DATE_FORMAT_SHORT = DateTimeFormatter.ofPattern("dd. MM.");
-    public final static DateTimeFormatter DATE_FORMAT_MONTH = DateTimeFormatter.ofPattern("MMMYY");
+    public final static DateTimeFormatter DATE_FORMAT_MONTH = DateTimeFormatter.ofPattern("MMMyy");
 
-    public final static DateTimeFormatter DATE_FORMAT_DB_MONTH = DateTimeFormatter.ofPattern("YYYYMM");
+    public final static DateTimeFormatter DATE_FORMAT_DB_MONTH = DateTimeFormatter.ofPattern("yyyyMM");
 
     public final static DateTimeFormatter TIME_FORMAT = DateTimeFormatter.ofPattern("HH:mm");
 
     public final static DateTimeFormatter DATE_FORMAT_MONTH_FULL = DateTimeFormatter.ofPattern("MMMM");
 
-    public final static DateTimeFormatter DATE_FORMAT_FILE = DateTimeFormatter.ofPattern("YYYY-MM-dd_HH-mm-ss-SSS");
+    public final static DateTimeFormatter DATE_FORMAT_FILE = DateTimeFormatter.ofPattern("yyyy-MM-dd_HH-mm-ss-SSS");
 
-    public final static DateTimeFormatter DATE_TIME_FORMATTER_FULL = DateTimeFormatter.ofPattern("HH:mm dd.MM.YYYY");
+    public final static DateTimeFormatter DATE_TIME_FORMATTER_FULL = DateTimeFormatter.ofPattern("HH:mm dd.MM.yyyy");
 
     public static String formatTimes(WorkRecord workRecord) {
 
