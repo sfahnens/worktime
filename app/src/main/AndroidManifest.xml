@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.github.skyborla.worktime" android:versionCode="1000001" android:versionName="1.0.1">
+    package="com.github.skyborla.worktime">
 
     <uses-permission android:name="android.permission.VIBRATE" />
 
@@ -27,7 +27,7 @@
             android:grantUriPermissions="true">
             <meta-data
                 android:name="android.support.FILE_PROVIDER_PATHS"
-                android:resource="@xml/paths"></meta-data>
+                android:resource="@xml/paths" />
         </provider>
     </application>
 

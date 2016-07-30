@@ -3,9 +3,9 @@ package com.github.skyborla.worktime.ui.work;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
-import android.os.Parcelable;
+import android.support.design.widget.Snackbar;
+import android.view.View;
 
-import com.cocosw.undobar.UndoBarController;
 import com.github.skyborla.worktime.FormatUtil;
 import com.github.skyborla.worktime.ModelInteraction;
 import com.github.skyborla.worktime.R;
@@ -16,7 +16,7 @@ import org.threeten.bp.LocalDate;
 /**
  * Created by Sebastian on 21.09.2014.
  */
-public class DeleteWorkRecordHelper implements DialogInterface.OnClickListener, UndoBarController.UndoListener {
+public class DeleteWorkRecordHelper implements DialogInterface.OnClickListener {
 
     private final WorkRecord workRecord;
     private final Activity activity;
@@ -46,16 +46,14 @@ public class DeleteWorkRecordHelper implements DialogInterface.OnClickListener, 
         LocalDate changed = modelInteraction.getDataSource().deleteWorkRecord(workRecord);
         modelInteraction.modelChanged(changed);
 
-        new UndoBarController.UndoBar(activity)
-                .message(R.string.undo_delete)
-                .listener(this)
-                .duration(10000)
-                .show(true);
-    }
-
-    @Override
-    public void onUndo(Parcelable parcelable) {
-        LocalDate changed = modelInteraction.getDataSource().persistWorkRecord(workRecord);
-        modelInteraction.modelChanged(changed);
+        Snackbar.make(activity.findViewById(R.id.pager), R.string.undo_delete, 10000)
+                .setAction(R.string.action_undo, new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        LocalDate changed = modelInteraction.getDataSource().persistWorkRecord(workRecord);
+                        modelInteraction.modelChanged(changed);
+                    }
+                })
+                .show();
     }
 }

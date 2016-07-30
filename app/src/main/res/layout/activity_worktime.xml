@@ -1,23 +1,33 @@
-<android.support.v4.view.ViewPager xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/pager"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.github.skyborla.worktime.Worktime">
+    android:orientation="vertical">
 
-    <com.github.skyborla.worktime.ui.StyledPagerTabStrip
-        android:id="@+id/pager_header"
+    <android.support.v7.widget.Toolbar
+        android:id="@+id/toolbar"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_gravity="top"
-        android:background="@android:color/background_light"
-        android:paddingTop="12dp"
-        android:textSize="24sp"
+        android:layout_height="wrap_content" />
 
-        android:textColor="@android:color/primary_text_light" />
+    <android.support.v4.view.ViewPager
+        android:id="@+id/pager"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        tools:context="com.github.skyborla.worktime.Worktime">
 
-</android.support.v4.view.ViewPager>
+        <com.github.skyborla.worktime.ui.StyledPagerTabStrip
+            android:id="@+id/pager_header"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="top"
+            android:background="@android:color/background_light"
+            android:paddingTop="12dp"
+            android:textSize="24sp"
 
+            android:textColor="@android:color/primary_text_light" />
+
+    </android.support.v4.view.ViewPager>
+</LinearLayout>
 
 
 

@@ -1,21 +1,15 @@
-<menu xmlns:android="http://schemas.android.com/apk/res/android">
-
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
     <item
         android:id="@+id/action_new_work_record"
         android:title="@string/action_new_work_record"
-        android:showAsAction="always"
-        />
-
+        app:showAsAction="ifRoom" />
     <item
         android:id="@+id/action_new_leave_record"
         android:title="@string/action_new_leave_record"
-        android:showAsAction="never"
-        />
-
+        app:showAsAction="never" />
     <item
         android:id="@+id/action_send_email"
         android:title="@string/action_send_email"
-        android:showAsAction="never" />
-
-
+        app:showAsAction="never" />
 </menu>

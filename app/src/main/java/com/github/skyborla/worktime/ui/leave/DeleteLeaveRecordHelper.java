@@ -3,9 +3,9 @@ package com.github.skyborla.worktime.ui.leave;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
-import android.os.Parcelable;
+import android.support.design.widget.Snackbar;
+import android.view.View;
 
-import com.cocosw.undobar.UndoBarController;
 import com.github.skyborla.worktime.FormatUtil;
 import com.github.skyborla.worktime.ModelInteraction;
 import com.github.skyborla.worktime.R;
@@ -19,7 +19,7 @@ import java.util.Set;
 /**
  * Created by Sebastian on 21.09.2014.
  */
-public class DeleteLeaveRecordHelper implements DialogInterface.OnClickListener, UndoBarController.UndoListener {
+public class DeleteLeaveRecordHelper implements DialogInterface.OnClickListener {
 
     private final LeaveRecord leaveRecord;
     private final MetaLeaveRecord metaLeaveRecord;
@@ -54,16 +54,15 @@ public class DeleteLeaveRecordHelper implements DialogInterface.OnClickListener,
         Set<LocalDate> dates = modelInteraction.getDataSource().deleteLeaveRecord(leaveRecord);
         modelInteraction.modelChanged(dates);
 
-        new UndoBarController.UndoBar(activity)
-                .message(R.string.undo_delete)
-                .listener(this)
-                .duration(10000)
-                .show(true);
-    }
 
-    @Override
-    public void onUndo(Parcelable parcelable) {
-        Set<LocalDate> dates = modelInteraction.getDataSource().persistLeaveRecord(metaLeaveRecord);
-        modelInteraction.modelChanged(dates);
+        Snackbar.make(activity.findViewById(R.id.pager), R.string.undo_delete, 10000)
+                .setAction(R.string.action_undo, new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        Set<LocalDate> dates = modelInteraction.getDataSource().persistLeaveRecord(metaLeaveRecord);
+                        modelInteraction.modelChanged(dates);
+                    }
+                })
+                .show();
     }
 }

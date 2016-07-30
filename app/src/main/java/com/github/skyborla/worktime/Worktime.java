@@ -8,8 +8,9 @@ import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v13.app.FragmentPagerAdapter;
-import android.support.v4.app.FragmentActivity;
 import android.support.v4.view.ViewPager;
+import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.TextView;
@@ -39,7 +40,7 @@ import java.util.List;
 import java.util.Set;
 
 
-public class Worktime extends FragmentActivity implements RecordsFragment.RecordsFragmentInteractionListener, ModelInteraction {
+public class Worktime extends AppCompatActivity implements RecordsFragment.RecordsFragmentInteractionListener, ModelInteraction {
 
     public static int DATE_COLUMN_WIDTH;
 
@@ -58,7 +59,10 @@ public class Worktime extends FragmentActivity implements RecordsFragment.Record
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         setContentView(R.layout.activity_worktime);
+        setSupportActionBar((Toolbar) findViewById(R.id.toolbar));
+
 
         SharedPreferences pref = getPreferences(Context.MODE_PRIVATE);
 
