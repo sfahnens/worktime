@@ -5,8 +5,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 
-import com.doomonafireball.betterpickers.radialtimepicker.RadialPickerLayout;
-import com.doomonafireball.betterpickers.radialtimepicker.RadialTimePickerDialog;
+import com.codetroopers.betterpickers.radialtimepicker.RadialTimePickerDialogFragment;
 import com.github.skyborla.worktime.FormatUtil;
 
 import org.threeten.bp.LocalTime;
@@ -53,19 +52,19 @@ public class TimeControl {
             time = LocalTime.now();
         }
 
-        RadialTimePickerDialog
-                .newInstance(new RadialTimePickerDialog.OnTimeSetListener() {
-                                 @Override
-                                 public void onTimeSet(RadialPickerLayout radialPickerLayout, int hour, int minute) {
-                                     time = LocalTime.of(hour, minute);
+        new RadialTimePickerDialogFragment()
+                .setOnTimeSetListener(new RadialTimePickerDialogFragment.OnTimeSetListener() {
+                    @Override
+                    public void onTimeSet(RadialTimePickerDialogFragment fragment, int hour, int minute) {
+                        time = LocalTime.of(hour, minute);
 
-                                     updatePreview();
-                                     listener.onFormUpdated();
-                                 }
-                             },
-                        time.getHour(),
-                        time.getMinute(),
-                        true).show(activity.getSupportFragmentManager(), "timePicker");
+                        updatePreview();
+                        listener.onFormUpdated();
+                    }
+                })
+                .setStartTime(time.getHour(), time.getMinute())
+                .setThemeLight()
+                .show(activity.getSupportFragmentManager(), "timePicker");
     }
 
     private void updatePreview() {

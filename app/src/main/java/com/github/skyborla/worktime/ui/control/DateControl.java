@@ -5,9 +5,8 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 
-import com.doomonafireball.betterpickers.calendardatepicker.CalendarDatePickerDialog;
+import com.codetroopers.betterpickers.calendardatepicker.CalendarDatePickerDialogFragment;
 import com.github.skyborla.worktime.FormatUtil;
-import com.github.skyborla.worktime.R;
 
 import org.threeten.bp.LocalDate;
 
@@ -53,20 +52,20 @@ public class DateControl {
             date = LocalDate.now();
         }
 
-        CalendarDatePickerDialog
-                .newInstance(
-                        new CalendarDatePickerDialog
+        new CalendarDatePickerDialogFragment()
+                .setOnDateSetListener(
+                        new CalendarDatePickerDialogFragment
                                 .OnDateSetListener() {
                             @Override
-                            public void onDateSet(CalendarDatePickerDialog calendarDatePickerDialog, int year, int month, int day) {
+                            public void onDateSet(CalendarDatePickerDialogFragment calendarDatePickerDialog, int year, int month, int day) {
                                 date = LocalDate.of(year, month + 1, day);
                                 updatePreview();
                                 listener.onFormUpdated();
                             }
-                        },
-                        date.getYear(),
-                        date.getMonthValue() - 1,
-                        date.getDayOfMonth()).show(activity.getSupportFragmentManager(), "calendardatepicker");
+                        })
+                .setPreselectedDate(date.getYear(), date.getMonthValue() - 1, date.getDayOfMonth())
+                .setThemeLight()
+                .show(activity.getSupportFragmentManager(), "calendardatepicker");
     }
 
     private void updatePreview() {

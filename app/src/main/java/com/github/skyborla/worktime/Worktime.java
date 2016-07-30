@@ -20,6 +20,7 @@ import com.github.skyborla.worktime.export.RecordsExporter;
 import com.github.skyborla.worktime.model.DataSource;
 import com.github.skyborla.worktime.model.LeaveRecord;
 import com.github.skyborla.worktime.model.WorkRecord;
+import com.github.skyborla.worktime.ui.AboutDialog;
 import com.github.skyborla.worktime.ui.leave.DeleteLeaveRecordHelper;
 import com.github.skyborla.worktime.ui.leave.EditLeaveRecordFragment;
 import com.github.skyborla.worktime.ui.leave.NewLeaveRecordFragment;
@@ -158,6 +159,10 @@ public class Worktime extends AppCompatActivity implements RecordsFragment.Recor
                         result.printStackTrace();
                     }
                 });
+                return true;
+
+            case R.id.action_about_dialog:
+                new AboutDialog().show(getSupportFragmentManager(), "about");
                 return true;
         }
 
